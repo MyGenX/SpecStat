@@ -19,15 +19,17 @@ export const GraphEdge = memo(function GraphEdge({
   targetX,
   targetY,
   data,
-}: EdgeProps<{ type: keyof VisualizeItemRelations }>) {
+}: EdgeProps<{ type: keyof VisualizeItemRelations; crossTrack?: boolean }>) {
   const [edgePath] = getStraightPath({ sourceX, sourceY, targetX, targetY })
   const style = EDGE_STYLES[data?.type ?? 'relates_to'] ?? EDGE_STYLES.relates_to
+  const strokeWidth = data?.crossTrack ? 2 : 1.5
+  const strokeDasharray = data?.crossTrack ? '6 3' : style.strokeDasharray
 
   return (
     <BaseEdge
       id={id}
       path={edgePath}
-      style={{ stroke: style.stroke, strokeDasharray: style.strokeDasharray, strokeWidth: 1.5 }}
+      style={{ stroke: style.stroke, strokeDasharray, strokeWidth }}
       markerEnd={data?.type !== 'relates_to' ? 'url(#arrow)' : undefined}
     />
   )

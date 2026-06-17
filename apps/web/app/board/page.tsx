@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useIndex } from '@/lib/hooks'
-import { getWorkspaceRepos } from '@/lib/workspace'
+import { useActiveRepo, useIndex } from '@/lib/hooks'
 import { BoardView } from '@/components/board/BoardView'
 import { CardDetail } from '@/components/board/CardDetail'
 import type { IndexItem, SpecType } from '@specstat/types'
@@ -12,25 +11,15 @@ type GroupBy = 'status' | 'owner' | 'type' | 'tag'
 
 export default function BoardPage() {
   const searchParams = useSearchParams()
-  const repoParam = searchParams.get('repo')
   const folderFilter = searchParams.get('folder')
   const groupBy = (searchParams.get('groupBy') as GroupBy | null) ?? 'status'
 
-  const [repos, setRepos] = useState<string[]>([])
+  const { repo: primaryRepo, resolving } = useActiveRepo()
   const [selectedItem, setSelectedItem] = useState<{ item: IndexItem; repo: string } | null>(null)
   const [breadcrumbs, setBreadcrumbs] = useState<{ item: IndexItem; repo: string }[]>([])
   const [filterType, setFilterType] = useState<SpecType | ''>('')
   const [showArchived, setShowArchived] = useState(false)
 
-  useEffect(() => {
-    if (repoParam) {
-      setRepos([repoParam])
-    } else {
-      setRepos(getWorkspaceRepos().map((r) => r.repo))
-    }
-  }, [repoParam])
-
-  const primaryRepo = repos[0] ?? ''
   const { data: index } = useIndex(primaryRepo)
 
   const rawItems = index?.items ?? []
@@ -58,6 +47,8 @@ export default function BoardPage() {
     }
     setSelectedItem({ item, repo })
   }
+
+  if (resolving) return <div className="p-8 text-muted-foreground">Selecting repo…</div>
 
   return (
     <div className="h-[calc(100vh-56px)] flex flex-col">

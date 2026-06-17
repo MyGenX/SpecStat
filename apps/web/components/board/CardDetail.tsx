@@ -38,12 +38,23 @@ interface CardDetailProps {
   breadcrumbs?: { item: IndexItem; repo: string }[]
 }
 
+type ChangeTab = 'proposal' | 'design' | 'tasks'
+
 export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }: CardDetailProps) {
   const { data: visualize } = useItem(repo, item.visualize)
+  const isChange = item.track === 'change' || (!item.track && item.path.includes('/changes/'))
   const specPath = visualize?.spec_file ? `${item.path}/${visualize.spec_file}` : item.spec_file
   const { data: markdown } = useFileContent(repo, specPath)
   const { data: commits } = useCommitHistory(repo, specPath)
   const [activeTab, setActiveTab] = useState<'spec' | 'history'>('spec')
+  const availableChangeTabs = isChange
+    ? (['proposal', 'design', 'tasks'] as ChangeTab[]).filter((t) => item.docs?.[t])
+    : []
+  const [changeTab, setChangeTab] = useState<ChangeTab>('proposal')
+  const changeDocPath = isChange && item.docs?.[changeTab]
+    ? `${item.path}/${item.docs[changeTab]}`
+    : ''
+  const { data: changeDocContent } = useFileContent(repo, changeDocPath)
 
   const dir = item.path
   const resolvedMd = markdown ? resolveRelativeLinks(markdown, repo, 'main', dir) : ''
@@ -86,52 +97,79 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
 
       <div className="flex-1 overflow-hidden flex">
         <div className="flex-1 overflow-y-auto p-4 border-r">
-          <div className="flex gap-3 mb-4 border-b pb-3">
-            <button
-              onClick={() => setActiveTab('spec')}
-              className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'spec' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
-            >
-              Spec
-            </button>
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'history' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
-            >
-              History
-            </button>
-          </div>
+          {isChange ? (
+            <>
+              <div className="flex gap-3 mb-4 border-b pb-3 flex-wrap">
+                {availableChangeTabs.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setChangeTab(t)}
+                    className={`text-sm font-medium pb-1 border-b-2 capitalize ${changeTab === t ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <div className="prose prose-sm max-w-none">
+                {changeDocContent ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize, rehypeHighlight]}>
+                    {changeDocContent}
+                  </ReactMarkdown>
+                ) : (
+                  <p className="text-muted-foreground">Loading…</p>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex gap-3 mb-4 border-b pb-3">
+                <button
+                  onClick={() => setActiveTab('spec')}
+                  className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'spec' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                >
+                  Spec
+                </button>
+                <button
+                  onClick={() => setActiveTab('history')}
+                  className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'history' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                >
+                  History
+                </button>
+              </div>
 
-          {activeTab === 'spec' && (
-            <div className="prose prose-sm max-w-none">
-              {resolvedMd ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize, rehypeHighlight]}>
-                  {resolvedMd}
-                </ReactMarkdown>
-              ) : (
-                <p className="text-muted-foreground">Loading spec…</p>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'history' && (
-            <div className="space-y-3">
-              {commits?.map((c) => (
-                <div key={c.sha} className="flex gap-3 text-sm border-b pb-3">
-                  {c.authorAvatar && (
-                    <img src={c.authorAvatar} alt={c.author} className="w-6 h-6 rounded-full shrink-0 mt-0.5" />
+              {activeTab === 'spec' && (
+                <div className="prose prose-sm max-w-none">
+                  {resolvedMd ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize, rehypeHighlight]}>
+                      {resolvedMd}
+                    </ReactMarkdown>
+                  ) : (
+                    <p className="text-muted-foreground">Loading spec…</p>
                   )}
-                  <div>
-                    <div className="font-medium">{c.message}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {c.author} · {c.date.slice(0, 10)}
-                      {c.prNumber && (
-                        <> · <a href={`https://github.com/${repo}/pull/${c.prNumber}`} target="_blank" rel="noopener" className="text-primary hover:underline">PR #{c.prNumber}</a></>
-                      )}
-                    </div>
-                  </div>
                 </div>
-              ))}
-            </div>
+              )}
+
+              {activeTab === 'history' && (
+                <div className="space-y-3">
+                  {commits?.map((c) => (
+                    <div key={c.sha} className="flex gap-3 text-sm border-b pb-3">
+                      {c.authorAvatar && (
+                        <img src={c.authorAvatar} alt={c.author} className="w-6 h-6 rounded-full shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <div className="font-medium">{c.message}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {c.author} · {c.date.slice(0, 10)}
+                          {c.prNumber && (
+                            <> · <a href={`https://github.com/${repo}/pull/${c.prNumber}`} target="_blank" rel="noopener" className="text-primary hover:underline">PR #{c.prNumber}</a></>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -140,6 +178,26 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
             <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Status</div>
             <StatusBadge status={item.status} />
           </div>
+
+          {item.tasks && item.tasks.total > 0 && (
+            <div className="space-y-1">
+              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Tasks</div>
+              <div className="text-xs">{item.tasks.done}/{item.tasks.total} ({Math.round(item.tasks.done / item.tasks.total * 100)}%)</div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round(item.tasks.done / item.tasks.total * 100)}%` }} />
+              </div>
+            </div>
+          )}
+
+          {(item.requirement_count != null || item.scenario_count != null) && (
+            <div className="space-y-1">
+              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Coverage</div>
+              <div className="text-xs space-y-0.5">
+                {item.requirement_count != null && <div>{item.requirement_count} requirements</div>}
+                {item.scenario_count != null && <div>{item.scenario_count} scenarios</div>}
+              </div>
+            </div>
+          )}
 
           {visualize?.priority && (
             <div className="space-y-1">

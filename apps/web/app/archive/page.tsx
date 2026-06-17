@@ -1,16 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { useIndex } from '@/lib/hooks'
+import { useActiveRepo, useIndex } from '@/lib/hooks'
 import { CardDetail } from '@/components/board/CardDetail'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { TypeIcon } from '@/components/shared/TypeIcon'
 import type { IndexItem, SpecType } from '@specstat/types'
 
 export default function ArchivePage() {
-  const searchParams = useSearchParams()
-  const repo = searchParams.get('repo') ?? ''
+  const { repo, resolving } = useActiveRepo()
   const { data: index, isLoading } = useIndex(repo)
   const [selectedItem, setSelectedItem] = useState<{ item: IndexItem; repo: string } | null>(null)
   const [breadcrumbs, setBreadcrumbs] = useState<{ item: IndexItem; repo: string }[]>([])
@@ -18,7 +16,7 @@ export default function ArchivePage() {
   const [filterOwner, setFilterOwner] = useState('')
   const [filterFolder, setFilterFolder] = useState('')
 
-  if (!repo) return <div className="p-8 text-muted-foreground">No repo selected.</div>
+  if (resolving) return <div className="p-8 text-muted-foreground">Selecting repo…</div>
   if (isLoading) return <div className="p-8 text-muted-foreground">Loading…</div>
   if (!index) return <div className="p-8 text-muted-foreground">Could not load repo.</div>
 

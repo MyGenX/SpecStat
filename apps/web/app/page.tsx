@@ -11,7 +11,7 @@ function RepoCard({ workspaceRepo }: { workspaceRepo: WorkspaceRepo }) {
   const router = useRouter()
   return (
     <button
-      onClick={() => router.push(`/board?repo=${encodeURIComponent(workspaceRepo.repo)}`)}
+      onClick={() => router.push(`/stories?repo=${encodeURIComponent(workspaceRepo.repo)}`)}
       className="text-left bg-card border rounded-lg p-6 hover:shadow-md transition-shadow w-full"
     >
       <div className="font-semibold text-base">{workspaceRepo.alias ?? workspaceRepo.repo}</div>
@@ -35,7 +35,7 @@ export default function WorkspacePage() {
   useEffect(() => {
     const loaded = getWorkspaceRepos()
     if (loaded.length === 1) {
-      router.replace(`/board?repo=${encodeURIComponent(loaded[0].repo)}`)
+      router.replace(`/stories?repo=${encodeURIComponent(loaded[0].repo)}`)
       return
     }
     setRepos(loaded)

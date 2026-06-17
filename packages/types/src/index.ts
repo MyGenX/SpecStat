@@ -55,6 +55,19 @@ export interface VisualizeItemTriggers {
   on_approve?: string
 }
 
+export type Track = 'spec' | 'change'
+
+export interface TaskProgress {
+  total: number
+  done: number
+}
+
+export interface ChangeDocs {
+  proposal?: string
+  design?: string
+  tasks?: string
+}
+
 export interface VisualizeItem {
   type: 'item'
   id: string
@@ -71,6 +84,11 @@ export interface VisualizeItem {
   created_at: string
   last_updated: string
   last_commit?: string
+  track?: Track
+  tasks?: TaskProgress
+  requirement_count?: number
+  scenario_count?: number
+  docs?: ChangeDocs
   card?: VisualizeItemCard
   relations?: VisualizeItemRelations
   github?: VisualizeItemGithub
@@ -120,6 +138,12 @@ export interface IndexItem {
   archived: boolean
   last_updated: string
   last_commit?: string
+  track?: Track
+  tasks?: TaskProgress
+  requirement_count?: number
+  scenario_count?: number
+  docs?: ChangeDocs
+  relations?: VisualizeItemRelations
 }
 
 export interface IndexJson {
@@ -159,5 +183,6 @@ export interface GraphEdge {
   type: keyof VisualizeItemRelations
   data?: {
     crossRepo?: boolean
+    crossTrack?: boolean
   }
 }

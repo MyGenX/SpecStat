@@ -1,22 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { useIndex } from '@/lib/hooks'
+import { useActiveRepo, useIndex } from '@/lib/hooks'
 import { GraphView } from '@/components/graph/GraphView'
 import { CardDetail } from '@/components/board/CardDetail'
 import type { IndexItem, VisualizeItemRelations } from '@specstat/types'
 
 export default function GraphPage() {
-  const searchParams = useSearchParams()
-  const repo = searchParams.get('repo') ?? ''
+  const { repo, resolving } = useActiveRepo()
   const { data: index, isLoading } = useIndex(repo)
   const [selectedItem, setSelectedItem] = useState<{ item: IndexItem; repo: string } | null>(null)
   const [breadcrumbs, setBreadcrumbs] = useState<{ item: IndexItem; repo: string }[]>([])
 
+  // Build relations map from index items (includes auto-detected change→spec links)
   const relations = new Map<string, Partial<VisualizeItemRelations>>()
+  for (const item of index?.items ?? []) {
+    if (item.relations) relations.set(item.id, item.relations)
+  }
 
-  if (!repo) return <div className="p-8 text-muted-foreground">No repo selected.</div>
+  if (resolving) return <div className="p-8 text-muted-foreground">Selecting repo…</div>
   if (isLoading) return <div className="p-8 text-muted-foreground">Loading…</div>
   if (!index) return <div className="p-8 text-muted-foreground">Could not load repo.</div>
 

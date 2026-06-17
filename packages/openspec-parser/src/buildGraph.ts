@@ -67,14 +67,23 @@ export function buildGraph(
           if (col % COLS === 0) row++
         }
 
-        const sourceRepo = allItems.get(sourceId)?.repo
+        const sourceEntry = allItems.get(sourceId)
+        const sourceRepo = sourceEntry?.repo
         const targetRepo = targetEntry?.repo
+        const crossTrack = !!(
+          sourceEntry?.item.track &&
+          targetEntry?.item.track &&
+          sourceEntry.item.track !== targetEntry.item.track
+        )
         edges.push({
           id: edgeId,
           source: sourceId,
           target: targetId,
           type: key,
-          data: { crossRepo: !!sourceRepo && !!targetRepo && sourceRepo !== targetRepo },
+          data: {
+            crossRepo: !!sourceRepo && !!targetRepo && sourceRepo !== targetRepo,
+            crossTrack,
+          },
         })
       }
     }

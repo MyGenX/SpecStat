@@ -1,5 +1,18 @@
 import { z } from 'zod'
 
+const TrackSchema = z.enum(['spec', 'change']).optional()
+
+const TaskProgressSchema = z.object({
+  total: z.number(),
+  done: z.number(),
+}).optional()
+
+const ChangeDocsSchema = z.object({
+  proposal: z.string().optional(),
+  design: z.string().optional(),
+  tasks: z.string().optional(),
+}).optional()
+
 export const SpecStatusSchema = z.enum([
   'draft',
   'in-review',
@@ -78,6 +91,11 @@ export const VisualizeItemSchema = z.object({
       on_approve: z.string().optional(),
     })
     .optional(),
+  track: TrackSchema,
+  tasks: TaskProgressSchema,
+  requirement_count: z.number().optional(),
+  scenario_count: z.number().optional(),
+  docs: ChangeDocsSchema,
 })
 
 export const VisualizeFolderSchema = z.object({
@@ -111,6 +129,16 @@ export const IndexFolderSchema = z.object({
   visualize: z.string().min(1),
 })
 
+const RelationsSchema = z.object({
+  relates_to: z.array(z.string()).optional(),
+  depends_on: z.array(z.string()).optional(),
+  implements: z.array(z.string()).optional(),
+  linked_tasks: z.array(z.string()).optional(),
+  linked_designs: z.array(z.string()).optional(),
+  supersedes: z.array(z.string()).optional(),
+  superseded_by: z.string().nullable().optional(),
+}).optional()
+
 export const IndexItemSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
@@ -122,6 +150,12 @@ export const IndexItemSchema = z.object({
   archived: z.boolean(),
   last_updated: z.string().min(1),
   last_commit: z.string().optional(),
+  track: TrackSchema,
+  tasks: TaskProgressSchema,
+  requirement_count: z.number().optional(),
+  scenario_count: z.number().optional(),
+  docs: ChangeDocsSchema,
+  relations: RelationsSchema,
 })
 
 export const IndexJsonSchema = z.object({
