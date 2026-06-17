@@ -1,5 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NEXTAUTH_SECRET",
+    "NEXTAUTH_URL",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "NEXT_PUBLIC_GITHUB_APP_SLUG"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
