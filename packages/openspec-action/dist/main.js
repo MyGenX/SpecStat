@@ -27919,7 +27919,8 @@ var require_init = __commonJS({
       }
     }
     async function runInit({ root }) {
-      core2.info(`Initializing OpenSpec (spec-driven) in: ${root}`);
+      const force = core2.getInput("force") === "true";
+      core2.info(`Initializing OpenSpec (spec-driven) in: ${root}${force ? " [force]" : ""}`);
       const items = [];
       const folders = [];
       let generatedCount = 0;
@@ -27929,7 +27930,7 @@ var require_init = __commonJS({
           const dir = path.join(specsDir, name);
           const relPath = `specs/${name}`;
           const vPath = path.join(dir, "visualize.json");
-          if (fs.existsSync(vPath)) {
+          if (!force && fs.existsSync(vPath)) {
             core2.info(`Skipping existing: ${vPath}`);
             const existing = JSON.parse(fs.readFileSync(vPath, "utf-8"));
             items.push(buildIndexItemFromVisualizeItem(existing, dir, vPath));
@@ -27999,7 +28000,7 @@ var require_init = __commonJS({
           if (!cls)
             return;
           const vPath = path.join(changeDir, "visualize.json");
-          if (fs.existsSync(vPath)) {
+          if (!force && fs.existsSync(vPath)) {
             core2.info(`Skipping existing: ${vPath}`);
             const existing = JSON.parse(fs.readFileSync(vPath, "utf-8"));
             items.push(buildIndexItemFromVisualizeItem(existing, changeDir, vPath));
@@ -38897,6 +38898,91 @@ var require_prComment = __commonJS({
   }
 });
 
+// dist/clean.js
+var require_clean = __commonJS({
+  "dist/clean.js"(exports2) {
+    "use strict";
+    var __createBinding2 = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      var desc = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+        desc = { enumerable: true, get: function() {
+          return m[k];
+        } };
+      }
+      Object.defineProperty(o, k2, desc);
+    } : function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      o[k2] = m[k];
+    });
+    var __setModuleDefault2 = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+      Object.defineProperty(o, "default", { enumerable: true, value: v });
+    } : function(o, v) {
+      o["default"] = v;
+    });
+    var __importStar2 = exports2 && exports2.__importStar || /* @__PURE__ */ function() {
+      var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function(o2) {
+          var ar = [];
+          for (var k in o2) if (Object.prototype.hasOwnProperty.call(o2, k)) ar[ar.length] = k;
+          return ar;
+        };
+        return ownKeys(o);
+      };
+      return function(mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) {
+          for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding2(result, mod, k[i]);
+        }
+        __setModuleDefault2(result, mod);
+        return result;
+      };
+    }();
+    Object.defineProperty(exports2, "__esModule", { value: true });
+    exports2.runClean = runClean;
+    var core2 = __importStar2(require_core());
+    var fs = __importStar2(require("node:fs"));
+    var path = __importStar2(require("node:path"));
+    function collectGeneratedFiles(dir, results) {
+      let entries;
+      try {
+        entries = fs.readdirSync(dir, { withFileTypes: true });
+      } catch {
+        return;
+      }
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          collectGeneratedFiles(full, results);
+        } else if (entry.name === "visualize.json" || entry.name === "index.json") {
+          results.push(full);
+        }
+      }
+    }
+    async function runClean({ root }) {
+      core2.info(`Cleaning SpecStat-generated JSON files under: ${root}`);
+      if (!fs.existsSync(root)) {
+        core2.warning(`Root directory not found: ${root}`);
+        return;
+      }
+      const toDelete = [];
+      collectGeneratedFiles(root, toDelete);
+      if (toDelete.length === 0) {
+        core2.info("No generated files found.");
+        core2.setOutput("cleaned_count", "0");
+        return;
+      }
+      for (const f of toDelete) {
+        fs.unlinkSync(f);
+        core2.info(`Deleted: ${f}`);
+      }
+      core2.info(`Cleaned ${toDelete.length} generated files.`);
+      core2.setOutput("cleaned_count", String(toDelete.length));
+    }
+  }
+});
+
 // dist/main.js
 var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
@@ -38943,6 +39029,7 @@ var validate_js_1 = require_validate();
 var baseline_js_1 = require_baseline();
 var processTriggers_js_1 = require_processTriggers();
 var prComment_js_1 = require_prComment();
+var clean_js_1 = require_clean();
 async function run() {
   const mode = core.getInput("mode", { required: true });
   const root = core.getInput("root") || "openspec";
@@ -38975,6 +39062,9 @@ async function run() {
       break;
     case "pr-comment":
       await (0, prComment_js_1.runPrComment)({ root, token, repo });
+      break;
+    case "clean":
+      await (0, clean_js_1.runClean)({ root });
       break;
     case "report":
       core.info("Validation report posted.");
