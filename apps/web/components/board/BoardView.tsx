@@ -17,7 +17,7 @@ import { cn } from '@/lib/cn'
 
 type GroupBy = 'status' | 'owner' | 'type' | 'tag' | 'swimlane' | 'milestone'
 
-const STATUS_ORDER: SpecStatus[] = ['draft', 'in-review', 'approved', 'implemented', 'deprecated', 'archived']
+const STATUS_ORDER: SpecStatus[] = ['draft', 'in-progress', 'in-review', 'approved', 'implemented', 'deprecated', 'archived']
 
 interface BoardItem {
   item: IndexItem

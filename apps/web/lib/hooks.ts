@@ -127,13 +127,17 @@ export function useInstalledRepos() {
 
   return useQuery({
     queryKey: ['installed-repos', appSlug],
-    queryFn: async (): Promise<{ repos: InstalledRepo[]; installationId: number | null }> => {
+    queryFn: async (): Promise<{ repos: InstalledRepo[]; installationId: number | null; manageUrl: string | null }> => {
       const installations = await getAppInstallations(octokit!, appSlug)
-      if (installations.length === 0) return { repos: [], installationId: null }
+      if (installations.length === 0) return { repos: [], installationId: null, manageUrl: null }
       const repoLists = await Promise.all(installations.map((inst) => getInstallationRepos(octokit!, inst.id)))
       const repos = repoLists.flat()
       const unique = Array.from(new Map(repos.map((r) => [r.id, r])).values())
-      return { repos: unique, installationId: installations[0].id }
+      const first = installations[0]
+      const manageUrl = first.accountType === 'Organization'
+        ? `https://github.com/organizations/${first.accountLogin}/settings/installations/${first.id}`
+        : `https://github.com/settings/installations/${first.id}`
+      return { repos: unique, installationId: first.id, manageUrl }
     },
     enabled: !!octokit,
     staleTime: 2 * 60 * 1000,

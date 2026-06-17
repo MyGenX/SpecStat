@@ -2,6 +2,7 @@
 
 import type { IndexItem } from '@specstat/types'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { ListIcon, PlayIcon } from '@/components/shared/Icons'
 
 interface SpecStoryCardProps {
   item: IndexItem
@@ -14,10 +15,10 @@ export function SpecStoryCard({ item, activeChanges, onClick, selected }: SpecSt
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left p-3 rounded-lg border transition-all hover:shadow-sm ${
+      className={`w-full text-left p-3 rounded-lg border transition-all duration-200 hover:shadow-sm ${
         selected
           ? 'bg-muted border-primary shadow-sm'
-          : 'bg-card hover:bg-muted/40'
+          : 'bg-card border-border/60 hover:bg-muted/40'
       }`}
     >
       <div className="flex items-start justify-between gap-2 mb-1">
@@ -32,13 +33,19 @@ export function SpecStoryCard({ item, activeChanges, onClick, selected }: SpecSt
       {(item.requirement_count != null || item.scenario_count != null) && (
         <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
           {item.requirement_count != null && (
-            <span>{item.requirement_count} req{item.requirement_count !== 1 ? 's' : ''}</span>
+            <span className="flex items-center gap-1">
+              <ListIcon className="w-3 h-3" />
+              {item.requirement_count} req{item.requirement_count !== 1 ? 's' : ''}
+            </span>
           )}
           {item.requirement_count != null && item.scenario_count != null && (
             <span className="text-muted-foreground/40">·</span>
           )}
           {item.scenario_count != null && (
-            <span>{item.scenario_count} scenario{item.scenario_count !== 1 ? 's' : ''}</span>
+            <span className="flex items-center gap-1">
+              <PlayIcon className="w-3 h-3" />
+              {item.scenario_count} scenario{item.scenario_count !== 1 ? 's' : ''}
+            </span>
           )}
         </div>
       )}
@@ -48,9 +55,9 @@ export function SpecStoryCard({ item, activeChanges, onClick, selected }: SpecSt
           {activeChanges.map((changeName) => (
             <span
               key={changeName}
-              className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded"
+              className="text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded font-medium"
             >
-              ✦ {changeName}
+              {changeName}
             </span>
           ))}
         </div>

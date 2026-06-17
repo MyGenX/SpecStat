@@ -11,6 +11,12 @@ import { useFileContent, useItem, useCommitHistory, useIndex } from '@/lib/hooks
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { PriorityIndicator } from '@/components/shared/PriorityIndicator'
 import { TagChipList } from '@/components/shared/TagChip'
+import {
+  CircleDotIcon, CheckIcon, ListIcon, ArrowUpIcon, UserIcon, UsersIcon,
+  TagIcon, CalendarIcon, LinkIcon, ZapIcon, GitPullRequestIcon, GitCommitIcon,
+  FileTextIcon, HistoryIcon, LayersIcon, CodeIcon, PackageIcon, GitHubIcon,
+  MilestoneIcon, ArrowRightIcon,
+} from '@/components/shared/Icons'
 import { SpecView } from './SpecView'
 import { ProposalView } from './ProposalView'
 import { DesignView } from './DesignView'
@@ -85,7 +91,7 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
   ]
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[720px] bg-card border-l shadow-2xl z-50 flex flex-col">
+    <div className="fixed inset-y-0 right-0 w-[720px] bg-card border-l shadow-2xl z-50 flex flex-col border-t-2 border-t-primary">
       <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
         <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-x-auto">
           {breadcrumbs.map((bc, i) => (
@@ -103,10 +109,12 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
         </div>
         <button
           onClick={onClose}
-          className="text-muted-foreground hover:text-foreground p-1 rounded"
+          className="text-muted-foreground hover:text-foreground p-1.5 rounded-md hover:bg-muted/60 transition-colors"
           aria-label="Close panel"
         >
-          ✕
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
 
@@ -116,21 +124,26 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
             <>
               <div className="flex items-center justify-between mb-4 border-b pb-3">
                 <div className="flex gap-3 flex-wrap">
-                  {availableChangeTabs.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => { setChangeTab(t); setRawChangeMode(false) }}
-                      className={`text-sm font-medium pb-1 border-b-2 capitalize ${changeTab === t ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                  {availableChangeTabs.map((t) => {
+                    const TabIcon = t === 'proposal' ? FileTextIcon : t === 'design' ? LayersIcon : CheckIcon
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => { setChangeTab(t); setRawChangeMode(false) }}
+                        className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-md capitalize transition-colors ${changeTab === t ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}`}
+                      >
+                        <TabIcon className="w-3.5 h-3.5" />
+                        {t}
+                      </button>
+                    )
+                  })}
                 </div>
                 {changeDocContent && (
                   <button
                     onClick={() => setRawChangeMode((v) => !v)}
-                    className="text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border border-border font-medium transition-colors shrink-0"
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border border-border font-medium transition-colors shrink-0"
                   >
+                    {rawChangeMode ? <ListIcon className="w-3 h-3" /> : <CodeIcon className="w-3 h-3" />}
                     {rawChangeMode ? 'Structured' : 'Raw'}
                   </button>
                 )}
@@ -163,22 +176,25 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
                 <div className="flex gap-3">
                   <button
                     onClick={() => setActiveTab('spec')}
-                    className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'spec' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                    className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-md transition-colors ${activeTab === 'spec' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}`}
                   >
+                    <FileTextIcon className="w-3.5 h-3.5" />
                     Spec
                   </button>
                   <button
                     onClick={() => setActiveTab('history')}
-                    className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'history' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                    className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-md transition-colors ${activeTab === 'history' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}`}
                   >
+                    <HistoryIcon className="w-3.5 h-3.5" />
                     History
                   </button>
                 </div>
                 {activeTab === 'spec' && parsedSpec && parsedSpec.requirements.length > 0 && (
                   <button
                     onClick={() => setRawMode((v) => !v)}
-                    className="text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border border-border font-medium transition-colors"
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border border-border font-medium transition-colors"
                   >
+                    {rawMode ? <ListIcon className="w-3 h-3" /> : <CodeIcon className="w-3 h-3" />}
                     {rawMode ? 'Structured' : 'Raw'}
                   </button>
                 )}
@@ -206,8 +222,10 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
                 <div className="space-y-3">
                   {commits?.map((c) => (
                     <div key={c.sha} className="flex gap-3 text-sm border-b pb-3">
-                      {c.authorAvatar && (
+                      {c.authorAvatar ? (
                         <img src={c.authorAvatar} alt={c.author} className="w-6 h-6 rounded-full shrink-0 mt-0.5" />
+                      ) : (
+                        <GitCommitIcon className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
                       )}
                       <div>
                         <div className="font-medium">{c.message}</div>
@@ -228,13 +246,17 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
 
         <div className="w-64 shrink-0 overflow-y-auto p-4 space-y-4 text-sm">
           <div className="space-y-1">
-            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Status</div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+              <CircleDotIcon className="w-3 h-3" />Status
+            </div>
             <StatusBadge status={item.status} />
           </div>
 
           {item.tasks && item.tasks.total > 0 && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Tasks</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <CheckIcon className="w-3 h-3" />Tasks
+              </div>
               <div className="text-xs">{item.tasks.done}/{item.tasks.total} ({Math.round(item.tasks.done / item.tasks.total * 100)}%)</div>
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round(item.tasks.done / item.tasks.total * 100)}%` }} />
@@ -244,7 +266,9 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
 
           {(item.requirement_count != null || item.scenario_count != null) && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Coverage</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <ListIcon className="w-3 h-3" />Coverage
+              </div>
               <div className="text-xs space-y-0.5">
                 {item.requirement_count != null && <div>{item.requirement_count} requirements</div>}
                 {item.scenario_count != null && <div>{item.scenario_count} scenarios</div>}
@@ -254,56 +278,76 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
 
           {visualize?.priority && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Priority</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <ArrowUpIcon className="w-3 h-3" />Priority
+              </div>
               <PriorityIndicator priority={visualize.priority} />
             </div>
           )}
 
           {visualize?.owner && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Owner</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <UserIcon className="w-3 h-3" />Owner
+              </div>
               <div>{visualize.owner}</div>
             </div>
           )}
 
           {visualize?.contributors && visualize.contributors.length > 0 && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Contributors</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <UsersIcon className="w-3 h-3" />Contributors
+              </div>
               <div className="text-muted-foreground">{visualize.contributors.join(', ')}</div>
             </div>
           )}
 
           {visualize?.tags && visualize.tags.length > 0 && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Tags</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <TagIcon className="w-3 h-3" />Tags
+              </div>
               <TagChipList tags={visualize.tags} max={10} />
             </div>
           )}
 
           {visualize?.version && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Version</div>
-              <div className="font-mono text-xs">{visualize.version}</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <PackageIcon className="w-3 h-3" />Version
+              </div>
+              <div className="font-mono text-xs text-muted-foreground">{visualize.version}</div>
             </div>
           )}
 
           <div className="space-y-1">
-            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Dates</div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+              <CalendarIcon className="w-3 h-3" />Dates
+            </div>
             <div className="text-xs space-y-0.5">
               <div>Created: {openspecCreated ?? visualize?.created_at ?? '—'}</div>
               <div>Updated: {visualize?.last_updated ?? item.last_updated}</div>
-              {visualize?.last_commit && <div className="font-mono">{visualize.last_commit.slice(0, 7)}</div>}
+              {visualize?.last_commit && (
+                <div className="flex items-center gap-1">
+                  <GitCommitIcon className="w-3 h-3 text-muted-foreground" />
+                  <span className="font-mono">{visualize.last_commit.slice(0, 7)}</span>
+                </div>
+              )}
             </div>
           </div>
 
           {allRelations.length > 0 && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Relations</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <LinkIcon className="w-3 h-3" />Relations
+              </div>
               <div className="space-y-1">
                 {allRelations.map(({ id, type }) => {
                   const targetItem = index?.items.find((i) => i.id === id)
                   return (
-                    <div key={`${type}:${id}`} className="text-xs">
+                    <div key={`${type}:${id}`} className="flex items-center gap-1 text-xs">
+                      <ArrowRightIcon className="w-3 h-3 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">{type.replace(/_/g, ' ')}: </span>
                       {targetItem ? (
                         <button
@@ -324,30 +368,41 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
 
           {visualize?.github && (visualize.github.linked_pr || visualize.github.linked_issue) && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">GitHub</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <GitHubIcon className="w-3 h-3" />GitHub
+              </div>
               <div className="text-xs space-y-1">
                 {visualize.github.linked_pr && (
                   <div>
-                    <a href={`https://github.com/${repo}/pull/${visualize.github.linked_pr}`} target="_blank" rel="noopener" className="text-primary hover:underline">
+                    <a href={`https://github.com/${repo}/pull/${visualize.github.linked_pr}`} target="_blank" rel="noopener" className="flex items-center gap-1 text-primary hover:underline">
+                      <GitPullRequestIcon className="w-3 h-3" />
                       PR #{visualize.github.linked_pr}
                     </a>
                   </div>
                 )}
                 {visualize.github.linked_issue && (
                   <div>
-                    <a href={`https://github.com/${repo}/issues/${visualize.github.linked_issue}`} target="_blank" rel="noopener" className="text-primary hover:underline">
+                    <a href={`https://github.com/${repo}/issues/${visualize.github.linked_issue}`} target="_blank" rel="noopener" className="flex items-center gap-1 text-primary hover:underline">
+                      <CircleDotIcon className="w-3 h-3" />
                       Issue #{visualize.github.linked_issue}
                     </a>
                   </div>
                 )}
-                {visualize.github.milestone && <div>Milestone: {visualize.github.milestone}</div>}
+                {visualize.github.milestone && (
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <MilestoneIcon className="w-3 h-3" />
+                    {visualize.github.milestone}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {triggers.length > 0 && (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Triggers</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
+                <ZapIcon className="w-3 h-3" />Triggers
+              </div>
               <div className="space-y-1">
                 {triggers.map((t, i) => (
                   <div key={i} className="text-xs font-mono bg-muted rounded px-2 py-1">

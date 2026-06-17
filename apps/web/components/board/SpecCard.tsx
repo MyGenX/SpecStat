@@ -25,8 +25,8 @@ export function SpecCard({ item, repo, onClick, isDragging }: SpecCardProps) {
       onClick={onClick}
       onKeyDown={(e) => e.key === 'Enter' && onClick?.()}
       className={cn(
-        'bg-card border rounded-lg p-3 space-y-2 cursor-pointer select-none',
-        'hover:shadow-md transition-shadow',
+        'bg-card border border-border/60 rounded-lg p-3 space-y-2 cursor-pointer select-none',
+        'shadow-sm hover:shadow-md transition-all duration-200',
         isDragging && 'shadow-lg ring-2 ring-primary/30 opacity-80',
       )}
     >
@@ -41,7 +41,7 @@ export function SpecCard({ item, repo, onClick, isDragging }: SpecCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="text-muted-foreground hover:text-foreground shrink-0"
+            className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
             aria-label="Open in GitHub"
           >
             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden>

@@ -15,4 +15,4 @@ export {
 export { checkRepoSetup, createWorkflowSetupPR, updateWorkflowsPR, SPECSTAT_WORKFLOW_VERSION } from './setupWorkflows.js'
 export type { RepoSetupStatus, WorkflowSetupResult } from './setupWorkflows.js'
 export { getAppInstallations, getInstallationRepos } from './getInstalledRepos.js'
-export type { InstalledRepo } from './getInstalledRepos.js'
+export type { InstalledRepo, AppInstallation } from './getInstalledRepos.js'

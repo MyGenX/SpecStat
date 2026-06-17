@@ -7,14 +7,26 @@ export interface InstalledRepo {
   description: string | null
 }
 
+export interface AppInstallation {
+  id: number
+  appSlug: string
+  accountLogin: string
+  accountType: 'User' | 'Organization'
+}
+
 export async function getAppInstallations(
   octokit: Octokit,
   appSlug: string,
-): Promise<Array<{ id: number; appSlug: string }>> {
+): Promise<AppInstallation[]> {
   const { data } = await octokit.apps.listInstallationsForAuthenticatedUser({ per_page: 100 })
   return data.installations
     .filter((inst) => !appSlug || inst.app_slug === appSlug)
-    .map((inst) => ({ id: inst.id, appSlug: inst.app_slug }))
+    .map((inst) => ({
+      id: inst.id,
+      appSlug: inst.app_slug,
+      accountLogin: (inst.account as { login?: string } | null)?.login ?? '',
+      accountType: ((inst.account as { type?: string } | null)?.type === 'Organization' ? 'Organization' : 'User') as 'User' | 'Organization',
+    }))
 }
 
 export async function getInstallationRepos(octokit: Octokit, installationId: number): Promise<InstalledRepo[]> {
