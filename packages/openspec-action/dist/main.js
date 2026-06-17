@@ -27423,6 +27423,7 @@ var init_validateSchema = __esm({
     }).optional();
     SpecStatusSchema = external_exports.enum([
       "draft",
+      "in-progress",
       "in-review",
       "approved",
       "implemented",
