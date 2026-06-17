@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef } from 'react'
 import type { IndexItem, CommitInfo } from '@specstat/types'
@@ -21,14 +21,14 @@ interface BaselineMarker {
 function ItemTimeline({ item, repo, onEvents }: {
   item: IndexItem
   repo: string
-  onEvents: (events: TimelineEvent[]) => void
+  onEvents: (itemId: string, events: TimelineEvent[]) => void
 }) {
   const { data: commits } = useCommitHistory(repo, item.spec_file)
-  useMemo(() => {
+  useEffect(() => {
     if (commits) {
-      onEvents(commits.map((c) => ({ itemId: item.id, itemTitle: item.title, commit: c, repo })))
+      onEvents(item.id, commits.map((c) => ({ itemId: item.id, itemTitle: item.title, commit: c, repo })))
     }
-  }, [commits, item, repo, onEvents])
+  }, [commits, item.id, item.title, repo, onEvents])
   return null
 }
 
@@ -44,9 +44,9 @@ export function TimelineView({ items, repo, baselines = [] }: TimelineViewProps)
   const [filterFolder, setFilterFolder] = useState('')
   const parentRef = useRef<HTMLDivElement>(null)
 
-  function handleItemEvents(itemId: string, events: TimelineEvent[]) {
+  const handleItemEvents = useCallback((itemId: string, events: TimelineEvent[]) => {
     setAllEvents((prev) => new Map(prev).set(itemId, events))
-  }
+  }, [])
 
   const flatEvents = useMemo(() => {
     const all: TimelineEvent[] = []
@@ -91,7 +91,7 @@ export function TimelineView({ items, repo, baselines = [] }: TimelineViewProps)
           key={item.id}
           item={item}
           repo={repo}
-          onEvents={(events) => handleItemEvents(item.id, events)}
+          onEvents={handleItemEvents}
         />
       ))}
 

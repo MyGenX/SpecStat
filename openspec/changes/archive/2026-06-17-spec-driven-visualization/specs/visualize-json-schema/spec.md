@@ -1,8 +1,5 @@
-# visualize-json-schema Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change specstat. Update Purpose after archive.
-## Requirements
 ### Requirement: Item-level visualize.json structure
 Every spec item directory SHALL contain a `visualize.json` file with the following required fields: `type` ("item"), `id`, `title`, `spec_type`, `status`, `spec_file`, `created_at`, `last_updated`. Optional fields include `owner`, `priority`, `contributors`, `version`, `tags`, `archived`, `last_commit`, `card`, `relations`, `github`, `board`, `triggers`, and the spec-driven fields `track` ("spec" | "change"), `tasks` (`{ total, done }`), `requirement_count`, `scenario_count`, and `docs` (paths to `proposal`, `design`, `tasks` for change items). The `owner` field SHALL be optional because spec-driven markdown carries no owner by default.
 
@@ -22,19 +19,6 @@ Every spec item directory SHALL contain a `visualize.json` file with the followi
 - **WHEN** a `visualize.json` file contains unrecognized extra fields
 - **THEN** the parser SHALL strip those fields and return the valid subset without error
 
-### Requirement: Folder-level visualize.json structure
-Every folder within the `openspec/` directory SHALL contain a `visualize.json` file with `type` ("folder"), `label`, `archived`. Optional fields include `description`, `icon`, `color`, `default_view`, `default_group_by`, `owners`, `tags`, `item_count`.
-
-#### Scenario: Folder metadata is parsed
-- **WHEN** a folder `visualize.json` with `type: "folder"` is parsed
-- **THEN** the parser SHALL return a typed `VisualizeFolder` object
-
-#### Scenario: Archived folder is flagged
-- **WHEN** a folder `visualize.json` has `archived: true`
-- **THEN** the folder and all items under it SHALL be treated as archived throughout the UI
-
----
-
 ### Requirement: index.json root manifest structure
 The file `openspec/index.json` SHALL be present at the root of the OpenSpec directory with `meta` (containing a non-empty `repo`, `generated_at`, `openspec_version`) and two arrays: `folders` (folder summaries) and `items` (flat item summaries with `id`, `title`, `type`, `status`, `path`, `visualize`, `archived`, `last_updated`, plus the optional spec-driven fields `track`, `tasks`, `requirement_count`, and `scenario_count`). The parser SHALL tolerate older indexes that omit the spec-driven fields.
 
@@ -46,29 +30,7 @@ The file `openspec/index.json` SHALL be present at the root of the OpenSpec dire
 - **WHEN** an `index.json` lacks `track` and `tasks` on its items
 - **THEN** the parser SHALL parse it without error, treating the missing fields as undefined
 
-### Requirement: Valid status values
-The `status` field in item `visualize.json` files SHALL only accept the following values: `draft`, `in-review`, `approved`, `implemented`, `deprecated`, `archived`.
-
-#### Scenario: Valid status accepted
-- **WHEN** status is set to `approved`
-- **THEN** the Zod schema SHALL parse without error
-
-#### Scenario: Invalid status rejected
-- **WHEN** status is set to an unlisted value such as `done`
-- **THEN** the Zod schema SHALL return a validation error naming the field and listing valid values
-
----
-
-### Requirement: Valid spec_type values
-The `spec_type` field SHALL only accept: `spec`, `impl`, `task`, `design`, `proposal`, `decision`, `component`, `domain`.
-
-#### Scenario: Valid spec_type accepted
-- **WHEN** `spec_type` is `spec`
-- **THEN** the parser returns the item without error
-
-#### Scenario: Invalid spec_type rejected
-- **WHEN** `spec_type` is `feature`
-- **THEN** the Zod schema returns an error listing valid values
+## ADDED Requirements
 
 ### Requirement: Item track classification
 Each item SHALL carry a `track` field set to `"spec"` for items derived from `openspec/specs/` and `"change"` for items derived from `openspec/changes/`, so consumers can route items to the Stories or Changes views.
@@ -80,4 +42,3 @@ Each item SHALL carry a `track` field set to `"spec"` for items derived from `op
 #### Scenario: Change item track
 - **WHEN** an item is generated from a folder under `openspec/changes/`
 - **THEN** its `track` SHALL be `"change"`
-

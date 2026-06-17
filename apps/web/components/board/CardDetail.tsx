@@ -1,15 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeSanitize from 'rehype-sanitize'
 import type { IndexItem } from '@specstat/types'
-import { useFileContent, useItem, useCommitHistory } from '@/lib/hooks'
+import { parseSpecMarkdown } from '@specstat/openspec-parser'
+import { useFileContent, useItem, useCommitHistory, useIndex } from '@/lib/hooks'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { PriorityIndicator } from '@/components/shared/PriorityIndicator'
 import { TagChipList } from '@/components/shared/TagChip'
+import { SpecView } from './SpecView'
+import { ProposalView } from './ProposalView'
+import { DesignView } from './DesignView'
+import { TasksView } from './TasksView'
 
 const TRIGGER_RE = /<!--\s*@visualizer:trigger\s+(\S+)(?:\s+(.*?))?\s*-->/g
 
@@ -56,9 +61,19 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
     : ''
   const { data: changeDocContent } = useFileContent(repo, changeDocPath)
 
+  const yamlPath = isChange ? `${item.path}/.openspec.yaml` : ''
+  const { data: openspecYamlContent } = useFileContent(repo, yamlPath)
+  const openspecCreated = openspecYamlContent?.match(/^created:\s*(.+)$/m)?.[1]?.trim()
+
+  const { data: index } = useIndex(repo)
+
+  const [rawMode, setRawMode] = useState(false)
+  const [rawChangeMode, setRawChangeMode] = useState(false)
+
   const dir = item.path
   const resolvedMd = markdown ? resolveRelativeLinks(markdown, repo, 'main', dir) : ''
   const triggers = resolvedMd ? extractTriggers(resolvedMd) : []
+  const parsedSpec = useMemo(() => resolvedMd ? parseSpecMarkdown(resolvedMd) : null, [resolvedMd])
 
   const relations = visualize?.relations ?? {}
   const allRelations = [
@@ -99,54 +114,92 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
         <div className="flex-1 overflow-y-auto p-4 border-r">
           {isChange ? (
             <>
-              <div className="flex gap-3 mb-4 border-b pb-3 flex-wrap">
-                {availableChangeTabs.map((t) => (
+              <div className="flex items-center justify-between mb-4 border-b pb-3">
+                <div className="flex gap-3 flex-wrap">
+                  {availableChangeTabs.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => { setChangeTab(t); setRawChangeMode(false) }}
+                      className={`text-sm font-medium pb-1 border-b-2 capitalize ${changeTab === t ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                {changeDocContent && (
                   <button
-                    key={t}
-                    onClick={() => setChangeTab(t)}
-                    className={`text-sm font-medium pb-1 border-b-2 capitalize ${changeTab === t ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                    onClick={() => setRawChangeMode((v) => !v)}
+                    className="text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border border-border font-medium transition-colors shrink-0"
                   >
-                    {t}
+                    {rawChangeMode ? 'Structured' : 'Raw'}
                   </button>
-                ))}
+                )}
               </div>
-              <div className="prose prose-sm max-w-none">
-                {changeDocContent ? (
+              {!changeDocContent ? (
+                <p className="text-muted-foreground text-sm">Loading…</p>
+              ) : rawChangeMode ? (
+                <div className="prose prose-sm max-w-none">
                   <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize, rehypeHighlight]}>
                     {changeDocContent}
                   </ReactMarkdown>
-                ) : (
-                  <p className="text-muted-foreground">Loading…</p>
-                )}
-              </div>
+                </div>
+              ) : changeTab === 'proposal' ? (
+                <ProposalView md={changeDocContent} />
+              ) : changeTab === 'design' ? (
+                <DesignView md={changeDocContent} />
+              ) : changeTab === 'tasks' ? (
+                <TasksView md={changeDocContent} />
+              ) : (
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize, rehypeHighlight]}>
+                    {changeDocContent}
+                  </ReactMarkdown>
+                </div>
+              )}
             </>
           ) : (
             <>
-              <div className="flex gap-3 mb-4 border-b pb-3">
-                <button
-                  onClick={() => setActiveTab('spec')}
-                  className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'spec' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
-                >
-                  Spec
-                </button>
-                <button
-                  onClick={() => setActiveTab('history')}
-                  className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'history' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
-                >
-                  History
-                </button>
+              <div className="flex items-center justify-between mb-4 border-b pb-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setActiveTab('spec')}
+                    className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'spec' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                  >
+                    Spec
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('history')}
+                    className={`text-sm font-medium pb-1 border-b-2 ${activeTab === 'history' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
+                  >
+                    History
+                  </button>
+                </div>
+                {activeTab === 'spec' && parsedSpec && parsedSpec.requirements.length > 0 && (
+                  <button
+                    onClick={() => setRawMode((v) => !v)}
+                    className="text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border border-border font-medium transition-colors"
+                  >
+                    {rawMode ? 'Structured' : 'Raw'}
+                  </button>
+                )}
               </div>
 
               {activeTab === 'spec' && (
-                <div className="prose prose-sm max-w-none">
-                  {resolvedMd ? (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize, rehypeHighlight]}>
-                      {resolvedMd}
-                    </ReactMarkdown>
+                <>
+                  {parsedSpec && parsedSpec.requirements.length > 0 && !rawMode ? (
+                    <SpecView spec={parsedSpec} />
                   ) : (
-                    <p className="text-muted-foreground">Loading spec…</p>
+                    <div className="prose prose-sm max-w-none">
+                      {resolvedMd ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize, rehypeHighlight]}>
+                          {resolvedMd}
+                        </ReactMarkdown>
+                      ) : (
+                        <p className="text-muted-foreground">Loading spec…</p>
+                      )}
+                    </div>
                   )}
-                </div>
+                </>
               )}
 
               {activeTab === 'history' && (
@@ -237,8 +290,8 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
           <div className="space-y-1">
             <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Dates</div>
             <div className="text-xs space-y-0.5">
-              <div>Created: {visualize?.created_at}</div>
-              <div>Updated: {visualize?.last_updated}</div>
+              <div>Created: {openspecCreated ?? visualize?.created_at ?? '—'}</div>
+              <div>Updated: {visualize?.last_updated ?? item.last_updated}</div>
               {visualize?.last_commit && <div className="font-mono">{visualize.last_commit.slice(0, 7)}</div>}
             </div>
           </div>
@@ -247,17 +300,24 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
             <div className="space-y-1">
               <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Relations</div>
               <div className="space-y-1">
-                {allRelations.map(({ id, type }) => (
-                  <div key={`${type}:${id}`} className="text-xs">
-                    <span className="text-muted-foreground">{type.replace('_', ' ')}: </span>
-                    <button
-                      onClick={() => onNavigate({ ...item, id } as IndexItem, repo)}
-                      className="text-primary hover:underline font-mono"
-                    >
-                      {id}
-                    </button>
-                  </div>
-                ))}
+                {allRelations.map(({ id, type }) => {
+                  const targetItem = index?.items.find((i) => i.id === id)
+                  return (
+                    <div key={`${type}:${id}`} className="text-xs">
+                      <span className="text-muted-foreground">{type.replace(/_/g, ' ')}: </span>
+                      {targetItem ? (
+                        <button
+                          onClick={() => onNavigate(targetItem, repo)}
+                          className="text-primary hover:underline font-mono"
+                        >
+                          {id}
+                        </button>
+                      ) : (
+                        <span className="font-mono text-muted-foreground" title="Not found in this repo's index">{id}</span>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}

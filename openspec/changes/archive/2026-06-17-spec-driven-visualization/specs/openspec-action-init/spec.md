@@ -1,8 +1,5 @@
-# openspec-action-init Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change specstat. Update Purpose after archive.
-## Requirements
 ### Requirement: Init mode walks repo and generates visualize.json files
 When run in `init` mode, the `openspec-action` SHALL walk the OpenSpec root directory and classify content by the spec-driven layout: capability folders under `specs/` become spec (story) items, change folders under `changes/<name>/` become change items, and change folders under `changes/archive/<name>/` become archived change items. It SHALL generate a `visualize.json` in each item folder and parent folder where one does not already exist.
 
@@ -18,15 +15,6 @@ When run in `init` mode, the `openspec-action` SHALL walk the OpenSpec root dire
 - **WHEN** a `visualize.json` already exists for an item
 - **THEN** the init action SHALL skip that item and leave its `visualize.json` unchanged
 
-### Requirement: Init generates index.json
-After generating all `visualize.json` files, init SHALL generate `openspec/index.json` with a complete manifest of all folders and items.
-
-#### Scenario: index.json created with full item list
-- **WHEN** init completes
-- **THEN** `openspec/index.json` SHALL exist with `folders` and `items` arrays containing all discovered items
-
----
-
 ### Requirement: Init populates visualize.json from frontmatter
 The init action SHALL derive item fields from the spec-driven layout and markdown structure first — folder name as `id`, spec heading as `title`, parsed `### Requirement:`/`#### Scenario:` counts, and lifecycle status from folder plus `tasks.md` completion. When YAML frontmatter is present in a spec's Markdown file, its known fields (`id`, `title`, `status`, `owner`, `spec_type`) SHALL override the inferred values. Absent both, defaults apply (`status` inferred per lifecycle rules, `priority: null`).
 
@@ -38,16 +26,7 @@ The init action SHALL derive item fields from the spec-driven layout and markdow
 - **WHEN** a spec file has frontmatter `title: User login flow`
 - **THEN** the generated item `title` SHALL be `"User login flow"`, overriding the heading-derived value
 
-### Requirement: Init commits all generated files
-After generating all files, the init action SHALL commit them to the default branch with a standard commit message: `chore(openspec): initialize visualize.json files and index`.
-
-#### Scenario: Commit created after init
-- **WHEN** init runs and generates files
-- **THEN** a single commit SHALL be created containing all generated files
-
-#### Scenario: No commit if nothing generated
-- **WHEN** all items already have `visualize.json` files
-- **THEN** no commit SHALL be created
+## ADDED Requirements
 
 ### Requirement: Init infers lifecycle status from folder and task completion
 For items under `changes/`, init SHALL infer status as: `archived` when under `changes/archive/`; otherwise `draft` when zero `tasks.md` checkboxes are complete, `in-progress` when some are complete, and `approved` when all are complete. Items under `specs/` SHALL be assigned status `implemented`.
@@ -74,4 +53,3 @@ For each change folder, init SHALL parse `tasks.md` checkbox lines (`- [ ]` and 
 #### Scenario: Non-checkbox lines are ignored
 - **WHEN** `tasks.md` contains section headings and prose alongside checkboxes
 - **THEN** only checkbox lines SHALL be counted toward `total`
-
