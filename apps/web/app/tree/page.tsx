@@ -28,12 +28,17 @@ export default function TreePage() {
 
   return (
     <div className="flex h-[calc(100vh-56px)]">
-      <aside className="w-72 border-r overflow-y-auto">
-        <div className="px-4 py-3 border-b">
+      <aside className="w-80 border-r flex flex-col overflow-hidden">
+        <div className="px-4 py-3 border-b shrink-0">
           <h2 className="font-semibold text-sm">{repo}</h2>
           <p className="text-xs text-muted-foreground">{index.items.length} items</p>
         </div>
-        <TreeView index={index} repo={repo} onItemClick={handleItemClick} />
+        <TreeView
+          index={index}
+          repo={repo}
+          selectedItemPath={selectedItem?.item.path}
+          onItemClick={handleItemClick}
+        />
       </aside>
 
       <main className="flex-1 flex items-center justify-center text-muted-foreground text-sm">

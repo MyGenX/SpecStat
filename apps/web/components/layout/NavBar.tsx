@@ -9,8 +9,7 @@ import type { WorkspaceRepo } from '@specstat/types'
 
 const VIEWS = [
   { href: '/stories', label: 'Stories' },
-  { href: '/changes', label: 'Changes' },
-  { href: '/board', label: 'Board' },
+  { href: '/proposals', label: 'Proposals' },
   { href: '/tree', label: 'Tree' },
   { href: '/graph', label: 'Graph' },
   { href: '/timeline', label: 'Timeline' },

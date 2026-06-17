@@ -1,5 +1,6 @@
 export type SpecStatus =
   | 'draft'
+  | 'in-progress'
   | 'in-review'
   | 'approved'
   | 'implemented'

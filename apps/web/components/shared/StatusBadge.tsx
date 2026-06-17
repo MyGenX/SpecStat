@@ -3,9 +3,10 @@ import { cn } from '@/lib/cn'
 
 const STATUS_STYLES: Record<SpecStatus, string> = {
   draft: 'bg-gray-100 text-gray-700',
+  'in-progress': 'bg-blue-100 text-blue-700',
   'in-review': 'bg-yellow-100 text-yellow-700',
   approved: 'bg-green-100 text-green-700',
-  implemented: 'bg-blue-100 text-blue-700',
+  implemented: 'bg-violet-100 text-violet-700',
   deprecated: 'bg-orange-100 text-orange-700',
   archived: 'bg-slate-100 text-slate-500',
 }

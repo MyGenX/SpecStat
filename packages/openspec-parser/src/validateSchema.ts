@@ -15,6 +15,7 @@ const ChangeDocsSchema = z.object({
 
 export const SpecStatusSchema = z.enum([
   'draft',
+  'in-progress',
   'in-review',
   'approved',
   'implemented',
