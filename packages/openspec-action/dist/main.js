@@ -27710,7 +27710,9 @@ function parseSpecMarkdown(md) {
   let purpose = "";
   const requirements = [];
   let inPurpose = false;
+  let inRequirementBody = false;
   let currentReq = null;
+  let currentScenario = null;
   for (const line of lines) {
     const h1 = line.match(/^#\s+(.+?)(?:\s+Specification)?\s*$/);
     if (h1 && !title) {
@@ -27731,14 +27733,30 @@ function parseSpecMarkdown(md) {
     }
     const reqMatch = line.match(/^###\s+Requirement:\s*(.+)$/);
     if (reqMatch) {
-      currentReq = { title: reqMatch[1].trim(), scenarios: [] };
+      currentReq = { title: reqMatch[1].trim(), body: "", scenarios: [] };
       requirements.push(currentReq);
+      inRequirementBody = true;
+      currentScenario = null;
       continue;
     }
     const scenarioMatch = line.match(/^####\s+Scenario:\s*(.+)$/);
     if (scenarioMatch && currentReq) {
-      currentReq.scenarios.push(scenarioMatch[1].trim());
+      currentScenario = { title: scenarioMatch[1].trim(), steps: [] };
+      currentReq.scenarios.push(currentScenario);
+      inRequirementBody = false;
       continue;
+    }
+    if (line.trim() === "---") continue;
+    const stepMatch = line.match(STEP_RE);
+    if (stepMatch && currentScenario) {
+      currentScenario.steps.push({
+        keyword: stepMatch[1],
+        text: stepMatch[2].trim()
+      });
+      continue;
+    }
+    if (inRequirementBody && currentReq && line.trim() && !line.startsWith("#")) {
+      currentReq.body = (currentReq.body ? currentReq.body + " " : "") + line.trim();
     }
   }
   const scenario_count = requirements.reduce((sum, r) => sum + r.scenarios.length, 0);
@@ -27750,9 +27768,11 @@ function parseSpecMarkdown(md) {
     scenario_count
   };
 }
+var STEP_RE;
 var init_parseSpecMarkdown = __esm({
   "../openspec-parser/src/parseSpecMarkdown.ts"() {
     "use strict";
+    STEP_RE = /^[-*]?\s*\*\*(GIVEN|WHEN|THEN|AND)\*\*\s+(.+)$/;
   }
 });
 
@@ -27773,8 +27793,91 @@ function parseTasks(md) {
   }
   return { total, done };
 }
+function parseTasksFull(md) {
+  const lines = md.split("\n");
+  const sections = [];
+  let current = null;
+  let totalDone = 0;
+  let totalAll = 0;
+  for (const line of lines) {
+    const h2 = line.match(/^##\s+(.+)$/);
+    if (h2) {
+      current = { title: h2[1].trim(), tasks: [], done: 0, total: 0 };
+      sections.push(current);
+      continue;
+    }
+    const checkedMatch = line.match(/^- \[x\]\s*(.*)/i);
+    if (checkedMatch) {
+      const text = checkedMatch[1].replace(/^\d+\.\d+\s+/, "").trim();
+      if (current) {
+        current.tasks.push({ text, done: true });
+        current.done++;
+        current.total++;
+      }
+      totalDone++;
+      totalAll++;
+      continue;
+    }
+    const uncheckedMatch = line.match(/^- \[ \]\s*(.*)/);
+    if (uncheckedMatch) {
+      const text = uncheckedMatch[1].replace(/^\d+\.\d+\s+/, "").trim();
+      if (current) {
+        current.tasks.push({ text, done: false });
+        current.total++;
+      }
+      totalAll++;
+      continue;
+    }
+  }
+  return { sections, total: totalAll, done: totalDone };
+}
 var init_parseTasks = __esm({
   "../openspec-parser/src/parseTasks.ts"() {
+    "use strict";
+  }
+});
+
+// ../openspec-parser/src/parseSections.ts
+function parseSections(md) {
+  const lines = md.split("\n");
+  const sections = [];
+  let preamble = "";
+  let currentSection = null;
+  let currentSub = null;
+  for (const line of lines) {
+    if (line.trim() === "---") continue;
+    const h2 = line.match(/^##\s+(.+)$/);
+    if (h2) {
+      currentSub = null;
+      currentSection = { title: h2[1].trim(), body: "", subsections: [] };
+      sections.push(currentSection);
+      continue;
+    }
+    const h3 = line.match(/^###\s+(.+)$/);
+    if (h3 && currentSection) {
+      currentSub = { title: h3[1].trim(), body: "" };
+      currentSection.subsections.push(currentSub);
+      continue;
+    }
+    if (currentSub) {
+      currentSub.body += (currentSub.body ? "\n" : "") + line;
+    } else if (currentSection) {
+      currentSection.body += (currentSection.body ? "\n" : "") + line;
+    } else {
+      preamble += (preamble ? "\n" : "") + line;
+    }
+  }
+  preamble = preamble.trim();
+  for (const s of sections) {
+    s.body = s.body.trim();
+    for (const sub of s.subsections) {
+      sub.body = sub.body.trim();
+    }
+  }
+  return { preamble, sections };
+}
+var init_parseSections = __esm({
+  "../openspec-parser/src/parseSections.ts"() {
     "use strict";
   }
 });
@@ -27818,8 +27921,10 @@ __export(src_exports, {
   parseFolder: () => parseFolder,
   parseIndex: () => parseIndex,
   parseItem: () => parseItem,
+  parseSections: () => parseSections,
   parseSpecMarkdown: () => parseSpecMarkdown,
   parseTasks: () => parseTasks,
+  parseTasksFull: () => parseTasksFull,
   safeParseFolder: () => safeParseFolder,
   safeParseIndex: () => safeParseIndex,
   safeParseItem: () => safeParseItem
@@ -27833,6 +27938,7 @@ var init_src = __esm({
     init_buildGraph();
     init_parseSpecMarkdown();
     init_parseTasks();
+    init_parseSections();
     init_classifyPath();
     init_validateSchema();
   }
