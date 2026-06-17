@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+!packages/openspec-action/dist
+.turbo
+*.tsbuildinfo
+.env
+.env.local
+.env*.local
+.vercel
