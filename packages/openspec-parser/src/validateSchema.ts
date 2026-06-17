@@ -29,7 +29,7 @@ export const VisualizeItemSchema = z.object({
   spec_type: SpecTypeSchema,
   status: SpecStatusSchema,
   priority: PrioritySchema,
-  owner: z.string().min(1),
+  owner: z.string().optional(),
   contributors: z.array(z.string()).optional(),
   version: z.string().optional(),
   tags: z.array(z.string()).optional(),
@@ -95,7 +95,7 @@ export const VisualizeFolderSchema = z.object({
 })
 
 export const IndexMetaSchema = z.object({
-  repo: z.string().min(1),
+  repo: z.string(),
   repo_type: z.enum(['mixed', 'spec-only']).optional(),
   generated_at: z.string().min(1),
   openspec_version: z.string().min(1),

@@ -62,7 +62,7 @@ export interface VisualizeItem {
   spec_type: SpecType
   status: SpecStatus
   priority?: Priority | null
-  owner: string
+  owner?: string
   contributors?: string[]
   version?: string
   tags?: string[]

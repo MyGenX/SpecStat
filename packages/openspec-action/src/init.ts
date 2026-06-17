@@ -118,7 +118,7 @@ export async function runInit({ root }: InitOptions): Promise<void> {
 
   const index: IndexJson = {
     meta: {
-      repo: '',
+      repo: process.env.GITHUB_REPOSITORY ?? '',
       generated_at: nowIso(),
       openspec_version: '1.0.0',
       visualizer_version: '1.0.0',
