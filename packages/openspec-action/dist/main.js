@@ -29771,7 +29771,7 @@ var require_init = __commonJS({
       }
       const index = {
         meta: {
-          repo: "",
+          repo: process.env.GITHUB_REPOSITORY ?? "",
           generated_at: nowIso(),
           openspec_version: "1.0.0",
           visualizer_version: "1.0.0",
@@ -34065,7 +34065,7 @@ var init_validateSchema = __esm({
       spec_type: SpecTypeSchema,
       status: SpecStatusSchema,
       priority: PrioritySchema,
-      owner: external_exports.string().min(1),
+      owner: external_exports.string().optional(),
       contributors: external_exports.array(external_exports.string()).optional(),
       version: external_exports.string().optional(),
       tags: external_exports.array(external_exports.string()).optional(),
@@ -34119,7 +34119,7 @@ var init_validateSchema = __esm({
       item_count: external_exports.number().optional()
     });
     IndexMetaSchema = external_exports.object({
-      repo: external_exports.string().min(1),
+      repo: external_exports.string(),
       repo_type: external_exports.enum(["mixed", "spec-only"]).optional(),
       generated_at: external_exports.string().min(1),
       openspec_version: external_exports.string().min(1),
