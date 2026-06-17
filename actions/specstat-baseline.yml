@@ -1,0 +1,38 @@
+name: SpecStat Baseline
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_name:
+        description: 'Baseline name e.g. release-2026-Q2'
+        required: true
+      description:
+        description: 'Baseline description'
+        required: false
+
+  repository_dispatch:
+    types: [openspec-create-baseline]
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create baseline snapshot
+        uses: MyGenX/SpecStat@v1
+        with:
+          mode: baseline
+          root: openspec
+          baseline_name: ${{ inputs.baseline_name || github.event.client_payload.baseline_name }}
+          description: ${{ inputs.description || github.event.client_payload.description }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

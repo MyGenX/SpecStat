@@ -1,0 +1,39 @@
+name: SpecStat Validate
+
+on:
+  pull_request:
+    paths:
+      - 'openspec/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate OpenSpec files
+        uses: MyGenX/SpecStat@v1
+        with:
+          mode: validate
+          root: openspec
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          rules: |
+            - required-fields: [id, title, type, status, owner]
+            - unique-ids: true
+            - valid-relations: true
+            - valid-status-values: [draft, in-review, approved, implemented, deprecated, archived]
+            - valid-type-values: [spec, impl, task, design, proposal, decision, component, domain]
+
+      - name: Post validation report
+        if: failure()
+        uses: MyGenX/SpecStat@v1
+        with:
+          mode: report
+          github_token: ${{ secrets.GITHUB_TOKEN }}

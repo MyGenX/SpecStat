@@ -1,0 +1,61 @@
+name: Publish SpecStat Action
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/openspec-action/src/**'
+      - 'packages/openspec-action/action.yml'
+      - 'packages/openspec-action/package.json'
+      - 'packages/openspec-parser/src/**'
+      - 'packages/types/src/**'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag to create/move (e.g. v1, v1.2.0)'
+        required: false
+        default: 'v1'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build action bundle
+        run: npm run build -w packages/openspec-action
+
+      - name: Commit built dist
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/openspec-action/dist/main.js
+          if git diff --staged --quiet; then
+            echo "dist unchanged, skipping commit"
+          else
+            git commit -m "chore(action): rebuild dist [skip ci]"
+            git push
+          fi
+
+      - name: Move version tag
+        run: |
+          TAG="${{ inputs.tag || 'v1' }}"
+          git tag -f "$TAG"
+          git push -f origin "$TAG"
+          echo "Tagged $TAG → $(git rev-parse HEAD)"

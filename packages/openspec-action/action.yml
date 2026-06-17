@@ -1,0 +1,28 @@
+name: 'OpenSpec Action'
+description: 'Init, sync, validate, baseline, and process-triggers for OpenSpec repos'
+author: 'SpecStat'
+
+inputs:
+  mode:
+    description: 'Operation mode: init | sync | validate | baseline | process-triggers | pr-comment | report'
+    required: true
+  root:
+    description: 'OpenSpec root folder'
+    required: false
+    default: 'openspec'
+  github_token:
+    description: 'GitHub token'
+    required: true
+  baseline_name:
+    description: 'Baseline name (baseline mode only)'
+    required: false
+  description:
+    description: 'Baseline description (baseline mode only)'
+    required: false
+  rules:
+    description: 'Validation rules YAML (validate mode only)'
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/main.js'

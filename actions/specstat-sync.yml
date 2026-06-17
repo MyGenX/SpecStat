@@ -1,0 +1,72 @@
+name: SpecStat Sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'openspec/**'
+
+  pull_request:
+    paths:
+      - 'openspec/**'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Detect changed files
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            openspec:
+              - 'openspec/**/*.md'
+              - 'openspec/**/*.yaml'
+              - 'openspec/**/*.yml'
+
+      - name: Run SpecStat Sync
+        if: steps.changes.outputs.openspec == 'true'
+        uses: MyGenX/SpecStat@v1
+        with:
+          mode: sync
+          root: openspec
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Process Markdown triggers
+        if: steps.changes.outputs.openspec == 'true'
+        uses: MyGenX/SpecStat@v1
+        with:
+          mode: process-triggers
+          root: openspec
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit updated index
+        if: github.event_name == 'push' && steps.changes.outputs.openspec == 'true'
+        run: |
+          git config user.name "specstat-bot"
+          git config user.email "bot@specstat.app"
+          git add openspec/index.json openspec/
+          git diff --staged --quiet || git commit -m "chore(openspec): sync index after spec changes"
+          git push
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: MyGenX/SpecStat@v1
+        with:
+          mode: pr-comment
+          root: openspec
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,41 @@
+name: SpecStat Init
+
+on:
+  workflow_dispatch:
+    inputs:
+      root:
+        description: 'OpenSpec root folder'
+        required: false
+        default: 'openspec'
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run SpecStat Init
+        uses: MyGenX/SpecStat@v1
+        with:
+          mode: init
+          root: ${{ inputs.root }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit generated files
+        run: |
+          git config user.name "specstat-bot"
+          git config user.email "bot@specstat.app"
+          git add openspec/
+          git diff --staged --quiet || git commit -m "chore(openspec): initialize visualize.json files and index"
+          git push
