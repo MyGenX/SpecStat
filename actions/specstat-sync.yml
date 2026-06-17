@@ -1,6 +1,14 @@
+# specstat-version: 1.1.0
 name: SpecStat Sync
 
 on:
+  workflow_dispatch:
+    inputs:
+      root:
+        description: 'OpenSpec root folder'
+        required: false
+        default: 'openspec'
+
   push:
     branches: [main]
     paths:
@@ -39,34 +47,61 @@ jobs:
               - 'openspec/**/*.yml'
 
       - name: Run SpecStat Sync
-        if: steps.changes.outputs.openspec == 'true'
+        if: ${{ steps.changes.outputs.openspec == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: MyGenX/SpecStat@v1
         with:
           mode: sync
-          root: openspec
+          root: ${{ inputs.root || 'openspec' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Process Markdown triggers
-        if: steps.changes.outputs.openspec == 'true'
+        if: ${{ steps.changes.outputs.openspec == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: MyGenX/SpecStat@v1
         with:
           mode: process-triggers
-          root: openspec
+          root: ${{ inputs.root || 'openspec' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit updated index
-        if: github.event_name == 'push' && steps.changes.outputs.openspec == 'true'
+      - name: Open sync PR
+        if: ${{ (steps.changes.outputs.openspec == 'true' || github.event_name == 'workflow_dispatch') && github.event_name != 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: |
+            Updates `index.json` and any stale `visualize.json` files after spec changes.
+
+            **Triggered by:** ${{ github.event_name }}
+            **Branch/ref:** ${{ github.ref }}
+
+            To revert, close this PR. The index will be regenerated on the next sync.
         run: |
+          ROOT="${{ inputs.root || 'openspec' }}"
+          BRANCH="specstat/sync-$(date +%Y%m%d-%H%M%S)"
           git config user.name "specstat-bot"
           git config user.email "bot@specstat.app"
-          git add openspec/index.json openspec/
-          git diff --staged --quiet || git commit -m "chore(openspec): sync index after spec changes"
-          git push
+          git checkout -b "$BRANCH"
+          git add "$ROOT/index.json" "$ROOT/"
+          if git diff --staged --quiet; then
+            echo "Index already up to date — nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore(openspec): sync index after spec changes"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "chore(openspec): sync SpecStat index" \
+            --body "$PR_BODY" \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$BRANCH" || {
+            echo ""
+            echo "❌ PR creation failed."
+            echo "   Fix: Settings → Actions → General → Workflow permissions"
+            echo "   Enable: 'Allow GitHub Actions to create and approve pull requests'"
+            exit 1
+          }
 
       - name: Comment on PR
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         uses: MyGenX/SpecStat@v1
         with:
           mode: pr-comment
-          root: openspec
+          root: ${{ inputs.root || 'openspec' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}

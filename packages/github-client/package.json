@@ -8,6 +8,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "generate": "node scripts/generate-workflows.mjs",
+    "prebuild": "node scripts/generate-workflows.mjs",
     "build": "tsc",
     "type-check": "tsc --noEmit"
   },

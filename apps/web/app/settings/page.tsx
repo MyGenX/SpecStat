@@ -5,7 +5,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { getWorkspaceRepos, addWorkspaceRepo, removeWorkspaceRepo } from '@/lib/workspace'
 import { useIndex, useRepoStatus, useInstalledRepos } from '@/lib/hooks'
-import { createOctokit, createWorkflowSetupPR } from '@specstat/github-client'
+import { createOctokit, createWorkflowSetupPR, updateWorkflowsPR, triggerWorkflow, WorkflowDispatchNotSupportedError, SPECSTAT_WORKFLOW_VERSION } from '@specstat/github-client'
 import type { RepoSetupStatus, WorkflowSetupResult } from '@specstat/github-client'
 import type { WorkspaceRepo } from '@specstat/types'
 
@@ -16,17 +16,20 @@ function SetupPanel({ repo, status }: { repo: string; status: RepoSetupStatus })
   const queryClient = useQueryClient()
   const [creating, setCreating] = useState(false)
   const [result, setResult] = useState<WorkflowSetupResult | null>(null)
+  const [updating, setUpdating] = useState(false)
+  const [updateResult, setUpdateResult] = useState<WorkflowSetupResult | null>(null)
 
   const token = (session as { accessToken?: string } | null)?.accessToken
   const allWorkflowsPresent =
-    status.workflows.init && status.workflows.sync && status.workflows.validate && status.workflows.baseline
+    status.workflows.init && status.workflows.sync && status.workflows.validate && status.workflows.baseline && status.workflows.clean
 
   const items = [
     { label: 'openspec/index.json', ok: status.hasIndex },
-    { label: 'openspec-init.yml', ok: status.workflows.init },
-    { label: 'openspec-sync.yml', ok: status.workflows.sync },
-    { label: 'openspec-validate.yml', ok: status.workflows.validate },
-    { label: 'openspec-baseline.yml', ok: status.workflows.baseline },
+    { label: 'specstat-init.yml', ok: status.workflows.init },
+    { label: 'specstat-sync.yml', ok: status.workflows.sync },
+    { label: 'specstat-validate.yml', ok: status.workflows.validate },
+    { label: 'specstat-baseline.yml', ok: status.workflows.baseline },
+    { label: 'specstat-clean.yml', ok: status.workflows.clean },
   ]
 
   async function handleCreateWorkflows() {
@@ -43,12 +46,42 @@ function SetupPanel({ repo, status }: { repo: string; status: RepoSetupStatus })
     }
   }
 
+  async function handleUpdateWorkflows() {
+    if (!token) return
+    setUpdating(true)
+    setUpdateResult(null)
+    try {
+      const octokit = createOctokit(token)
+      const res = await updateWorkflowsPR(octokit, repo)
+      setUpdateResult(res)
+    } finally {
+      setUpdating(false)
+    }
+  }
+
   return (
     <div className="mt-2 border-t pt-3 space-y-3">
       {!status.isInitialized && (
         <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
           Repository has no commits yet — clicking &quot;Add missing workflow files&quot; will create an initial commit automatically.
         </p>
+      )}
+      {!status.canCreatePRs && (
+        <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 space-y-1">
+          <p className="font-medium">GitHub Actions cannot create pull requests in this repo.</p>
+          <p>
+            Go to <strong>Settings → Actions → General → Workflow permissions</strong> and enable{' '}
+            <em>&quot;Allow GitHub Actions to create and approve pull requests&quot;</em>.
+          </p>
+          <a
+            href={`https://github.com/${repo}/settings/actions`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline"
+          >
+            Open repo Actions settings ↗
+          </a>
+        </div>
       )}
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Setup checklist</p>
       <ul className="space-y-1.5">
@@ -107,7 +140,128 @@ function SetupPanel({ repo, status }: { repo: string; status: RepoSetupStatus })
         <p className="text-xs text-red-500">{result.error}</p>
       )}
 
+      <div className="pt-2 border-t space-y-2">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Workflow version</p>
+        <p className="text-xs text-muted-foreground">Current template: <span className="font-mono">v{SPECSTAT_WORKFLOW_VERSION}</span></p>
+        <button
+          onClick={handleUpdateWorkflows}
+          disabled={updating || !token}
+          className="text-xs bg-muted text-foreground px-3 py-1.5 rounded-md font-medium border border-border hover:bg-muted/70 disabled:opacity-50"
+        >
+          {updating ? 'Opening PR…' : `Sync workflow files to v${SPECSTAT_WORKFLOW_VERSION}`}
+        </button>
+        {updateResult?.prUrl && (
+          <p className="text-xs text-green-600">
+            Opened{' '}
+            <a href={updateResult.prUrl} target="_blank" rel="noopener noreferrer" className="font-medium underline">
+              PR #{updateResult.prNumber} ↗
+            </a>{' '}
+            — merge to apply v{updateResult.updatedVersion}.
+          </p>
+        )}
+        {updateResult?.error && updateResult.error !== 'MISSING_WORKFLOWS_PERMISSION' && (
+          <p className="text-xs text-red-500">{updateResult.error}</p>
+        )}
+        {updateResult?.error === 'MISSING_WORKFLOWS_PERMISSION' && (
+          <p className="text-xs text-amber-700">Missing Workflows permission — see above.</p>
+        )}
+      </div>
+
       <p className="text-xs text-muted-foreground">Requires push access to this repository.</p>
+    </div>
+  )
+}
+
+// ─── Actions panel ────────────────────────────────────────────────────────────
+
+type ActionState = 'idle' | 'running' | 'done' | 'error'
+
+interface WorkflowAction {
+  id: string
+  label: string
+  workflowFile: string
+  available: boolean
+  inputs?: Record<string, string>
+}
+
+function ActionsPanel({ repo, status }: { repo: string; status: RepoSetupStatus }) {
+  const { data: session } = useSession()
+  const token = (session as { accessToken?: string } | null)?.accessToken
+  const [states, setStates] = useState<Record<string, ActionState>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const actions: WorkflowAction[] = [
+    { id: 'init', label: 'Run Init', workflowFile: 'specstat-init.yml', available: status.workflows.init },
+    { id: 'init-force', label: 'Force Reinit', workflowFile: 'specstat-init.yml', available: status.workflows.init, inputs: { force: 'true' } },
+    { id: 'sync', label: 'Run Sync', workflowFile: 'specstat-sync.yml', available: status.workflows.sync },
+    { id: 'baseline', label: 'Run Baseline', workflowFile: 'specstat-baseline.yml', available: status.workflows.baseline },
+    { id: 'clean', label: 'Clean JSON Files', workflowFile: 'specstat-clean.yml', available: status.workflows.clean },
+  ]
+
+  const availableActions = actions.filter((a) => a.available)
+  if (availableActions.length === 0) return null
+
+  async function handleTrigger(action: WorkflowAction) {
+    if (!token) return
+    setStates((s) => ({ ...s, [action.id]: 'running' }))
+    setErrors((e) => ({ ...e, [action.id]: '' }))
+    try {
+      const octokit = createOctokit(token)
+      await triggerWorkflow(octokit, repo, action.workflowFile, 'main', action.inputs)
+      setStates((s) => ({ ...s, [action.id]: 'done' }))
+      setTimeout(() => setStates((s) => ({ ...s, [action.id]: 'idle' })), 4000)
+    } catch (err) {
+      const msg =
+        err instanceof WorkflowDispatchNotSupportedError
+          ? 'Workflow does not support manual dispatch. Update the workflow file via "Open setup PR" to add a workflow_dispatch trigger.'
+          : err instanceof Error
+            ? err.message
+            : 'Unknown error'
+      setStates((s) => ({ ...s, [action.id]: 'error' }))
+      setErrors((e) => ({ ...e, [action.id]: msg }))
+    }
+  }
+
+  return (
+    <div className="mt-3 pt-3 border-t space-y-2">
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Actions</p>
+      <div className="flex flex-wrap gap-2">
+        {availableActions.map((action) => {
+          const state = states[action.id] ?? 'idle'
+          return (
+            <button
+              key={action.id}
+              onClick={() => handleTrigger(action)}
+              disabled={state === 'running' || !token}
+              className={`text-xs px-3 py-1.5 rounded-md font-medium transition-colors disabled:opacity-50 ${
+                state === 'done'
+                  ? 'bg-green-100 text-green-700 border border-green-200'
+                  : state === 'error'
+                    ? 'bg-red-50 text-red-700 border border-red-200'
+                    : action.id === 'clean'
+                      ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
+                      : action.id === 'init-force'
+                        ? 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                        : 'bg-muted text-foreground hover:bg-muted/70 border border-border'
+              }`}
+            >
+              {state === 'running' ? 'Triggering…' : state === 'done' ? `${action.label} ✓` : action.label}
+            </button>
+          )
+        })}
+      </div>
+      {availableActions.map(
+        (action) =>
+          errors[action.id] && (
+            <p key={action.id} className="text-xs text-red-500 leading-relaxed">
+              <strong>{action.label}:</strong> {errors[action.id]}
+            </p>
+          ),
+      )}
+      <p className="text-xs text-muted-foreground">All actions open a PR — no direct commits to main. Merge to apply, close to cancel.</p>
+      {availableActions.some((a) => a.id === 'clean') && (
+        <p className="text-xs text-red-600">Clean removes all generated JSON files and opens a PR — merge after running Init to regenerate.</p>
+      )}
     </div>
   )
 }
@@ -125,7 +279,13 @@ function RepoRow({ entry, onRemove }: { entry: WorkspaceRepo; onRemove: () => vo
     status?.workflows.init &&
     status?.workflows.sync &&
     status?.workflows.validate &&
-    status?.workflows.baseline
+    status?.workflows.baseline &&
+    status?.workflows.clean
+
+  const hasAnyWorkflow =
+    status?.workflows.init || status?.workflows.sync || status?.workflows.baseline
+
+  const showExpand = !statusLoading && status && (!fullySetup || hasAnyWorkflow)
 
   return (
     <div className="border rounded-md px-4 py-3">
@@ -136,12 +296,20 @@ function RepoRow({ entry, onRemove }: { entry: WorkspaceRepo; onRemove: () => vo
             {entry.alias && <div className="text-xs text-muted-foreground">{entry.repo}</div>}
             {index && <div className="text-xs text-muted-foreground mt-0.5">{index.items.length} items</div>}
           </div>
-          {!statusLoading && status && !fullySetup && (
+          {showExpand && !fullySetup && (
             <button
               onClick={() => setExpanded((v) => !v)}
               className="shrink-0 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-medium hover:bg-yellow-200 transition-colors"
             >
               Setup required
+            </button>
+          )}
+          {showExpand && fullySetup && (
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="shrink-0 text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded-full border font-medium transition-colors"
+            >
+              {expanded ? 'Hide actions' : 'Actions'}
             </button>
           )}
         </div>
@@ -150,7 +318,12 @@ function RepoRow({ entry, onRemove }: { entry: WorkspaceRepo; onRemove: () => vo
         </button>
       </div>
 
-      {expanded && status && <SetupPanel repo={entry.repo} status={status} />}
+      {expanded && status && (
+        <>
+          <SetupPanel repo={entry.repo} status={status} />
+          {hasAnyWorkflow && <ActionsPanel repo={entry.repo} status={status} />}
+        </>
+      )}
     </div>
   )
 }

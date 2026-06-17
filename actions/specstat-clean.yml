@@ -1,5 +1,5 @@
 # specstat-version: 1.1.0
-name: SpecStat Init
+name: SpecStat Clean
 
 on:
   workflow_dispatch:
@@ -8,14 +8,9 @@ on:
         description: 'OpenSpec root folder'
         required: false
         default: 'openspec'
-      force:
-        description: 'Regenerate existing visualize.json files'
-        required: false
-        default: 'false'
-        type: boolean
 
 jobs:
-  init:
+  clean:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,49 +19,46 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Run SpecStat Init
+      - name: Remove generated JSON files
         uses: MyGenX/SpecStat@v1
         with:
-          mode: init
+          mode: clean
           root: ${{ inputs.root }}
-          force: ${{ inputs.force }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Open init PR
+      - name: Open clean PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_BODY: |
-            Adds SpecStat-generated JSON metadata needed for visualization in SpecStat.
+            Removes all SpecStat-generated JSON files from `${{ inputs.root }}/`:
+            - `index.json`
+            - All `visualize.json` files (per-item and folder manifests)
 
-            **Files added:**
-            - `${{ inputs.root }}/index.json` — central index of all specs and changes
-            - Per-item `visualize.json` files for visualization metadata
+            **Why merge this?** The generated files are invalid or need to be fully regenerated from scratch.
 
-            **Force regenerate:** ${{ inputs.force }}
+            **After merging:** Run the **SpecStat Init** workflow from the Actions tab or SpecStat settings to regenerate clean files.
 
-            These files are derived from your spec markdown files. To revert, close this PR — no spec content is lost.
+            **To cancel:** Close this PR — no files are changed until it is merged.
         run: |
-          BRANCH="specstat/init-$(date +%Y%m%d-%H%M%S)"
+          BRANCH="specstat/clean-$(date +%Y%m%d-%H%M%S)"
           git config user.name "specstat-bot"
           git config user.email "bot@specstat.app"
           git checkout -b "$BRANCH"
           git add "${{ inputs.root }}/"
           if git diff --staged --quiet; then
-            echo "Nothing generated — all files already existed."
+            echo "No generated files found to clean."
             exit 0
           fi
-          git commit -m "chore(openspec): initialize SpecStat JSON files"
+          git commit -m "chore(openspec): remove SpecStat-generated JSON files"
           git push origin "$BRANCH"
           gh pr create \
-            --title "chore(openspec): initialize SpecStat JSON files" \
+            --title "chore(openspec): clean SpecStat-generated JSON files" \
             --body "$PR_BODY" \
             --base "${{ github.event.repository.default_branch }}" \
             --head "$BRANCH" || {

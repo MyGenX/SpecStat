@@ -22,6 +22,10 @@ inputs:
   rules:
     description: 'Validation rules YAML (validate mode only)'
     required: false
+  force:
+    description: 'Regenerate existing visualize.json files even if they already exist (init mode only)'
+    required: false
+    default: 'false'
 
 runs:
   using: 'node20'

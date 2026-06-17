@@ -5,6 +5,7 @@ import { runValidate } from './validate.js'
 import { runBaseline } from './baseline.js'
 import { runProcessTriggers } from './processTriggers.js'
 import { runPrComment } from './prComment.js'
+import { runClean } from './clean.js'
 
 async function run() {
   const mode = core.getInput('mode', { required: true })
@@ -40,6 +41,9 @@ async function run() {
       break
     case 'pr-comment':
       await runPrComment({ root, token, repo })
+      break
+    case 'clean':
+      await runClean({ root })
       break
     case 'report':
       core.info('Validation report posted.')

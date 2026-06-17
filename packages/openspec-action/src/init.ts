@@ -45,7 +45,8 @@ function readFileSafe(p: string): string | null {
 }
 
 export async function runInit({ root }: InitOptions): Promise<void> {
-  core.info(`Initializing OpenSpec (spec-driven) in: ${root}`)
+  const force = core.getInput('force') === 'true'
+  core.info(`Initializing OpenSpec (spec-driven) in: ${root}${force ? ' [force]' : ''}`)
 
   const items: IndexItem[] = []
   const folders: IndexFolder[] = []
@@ -59,7 +60,7 @@ export async function runInit({ root }: InitOptions): Promise<void> {
       const relPath = `specs/${name}`
 
       const vPath = path.join(dir, 'visualize.json')
-      if (fs.existsSync(vPath)) {
+      if (!force && fs.existsSync(vPath)) {
         core.info(`Skipping existing: ${vPath}`)
         const existing = JSON.parse(fs.readFileSync(vPath, 'utf-8')) as VisualizeItem
         items.push(buildIndexItemFromVisualizeItem(existing, dir, vPath))
@@ -140,7 +141,7 @@ export async function runInit({ root }: InitOptions): Promise<void> {
       if (!cls) return
 
       const vPath = path.join(changeDir, 'visualize.json')
-      if (fs.existsSync(vPath)) {
+      if (!force && fs.existsSync(vPath)) {
         core.info(`Skipping existing: ${vPath}`)
         const existing = JSON.parse(fs.readFileSync(vPath, 'utf-8')) as VisualizeItem
         items.push(buildIndexItemFromVisualizeItem(existing, changeDir, vPath))
