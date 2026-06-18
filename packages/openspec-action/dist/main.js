@@ -17,9 +17,9 @@ var __export = (target, all) => {
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    for (let key2 of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key2) && key2 !== except)
+        __defProp(to, key2, { get: () => from[key2], enumerable: !(desc = __getOwnPropDesc(from, key2)) || desc.enumerable });
   }
   return to;
 };
@@ -124,16 +124,16 @@ var require_command = __commonJS({
         if (this.properties && Object.keys(this.properties).length > 0) {
           cmdStr += " ";
           let first = true;
-          for (const key in this.properties) {
-            if (this.properties.hasOwnProperty(key)) {
-              const val = this.properties[key];
+          for (const key2 in this.properties) {
+            if (this.properties.hasOwnProperty(key2)) {
+              const val = this.properties[key2];
               if (val) {
                 if (first) {
                   first = false;
                 } else {
                   cmdStr += ",";
                 }
-                cmdStr += `${key}=${escapeProperty(val)}`;
+                cmdStr += `${key2}=${escapeProperty(val)}`;
               }
             }
           }
@@ -201,16 +201,16 @@ var require_file_command = __commonJS({
       });
     }
     exports2.issueFileCommand = issueFileCommand;
-    function prepareKeyValueMessage(key, value) {
+    function prepareKeyValueMessage(key2, value) {
       const delimiter = `ghadelimiter_${crypto.randomUUID()}`;
       const convertedValue = (0, utils_1.toCommandValue)(value);
-      if (key.includes(delimiter)) {
+      if (key2.includes(delimiter)) {
         throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
       }
       if (convertedValue.includes(delimiter)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
       }
-      return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
+      return `${key2}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
     }
     exports2.prepareKeyValueMessage = prepareKeyValueMessage;
   }
@@ -922,9 +922,9 @@ var require_constants = __commonJS({
       "X-XSS-Protection"
     ];
     for (let i = 0; i < wellknownHeaderNames.length; ++i) {
-      const key = wellknownHeaderNames[i];
-      const lowerCasedKey = key.toLowerCase();
-      headerNameLowerCasedRecord[key] = headerNameLowerCasedRecord[lowerCasedKey] = lowerCasedKey;
+      const key2 = wellknownHeaderNames[i];
+      const lowerCasedKey = key2.toLowerCase();
+      headerNameLowerCasedRecord[key2] = headerNameLowerCasedRecord[lowerCasedKey] = lowerCasedKey;
     }
     Object.setPrototypeOf(headerNameLowerCasedRecord, null);
     module2.exports = {
@@ -1096,18 +1096,18 @@ var require_util = __commonJS({
     function parseHeaders(headers, obj = {}) {
       if (!Array.isArray(headers)) return headers;
       for (let i = 0; i < headers.length; i += 2) {
-        const key = headers[i].toString().toLowerCase();
-        let val = obj[key];
+        const key2 = headers[i].toString().toLowerCase();
+        let val = obj[key2];
         if (!val) {
           if (Array.isArray(headers[i + 1])) {
-            obj[key] = headers[i + 1].map((x) => x.toString("utf8"));
+            obj[key2] = headers[i + 1].map((x) => x.toString("utf8"));
           } else {
-            obj[key] = headers[i + 1].toString("utf8");
+            obj[key2] = headers[i + 1].toString("utf8");
           }
         } else {
           if (!Array.isArray(val)) {
             val = [val];
-            obj[key] = val;
+            obj[key2] = val;
           }
           val.push(headers[i + 1].toString("utf8"));
         }
@@ -1122,15 +1122,15 @@ var require_util = __commonJS({
       let hasContentLength = false;
       let contentDispositionIdx = -1;
       for (let n = 0; n < headers.length; n += 2) {
-        const key = headers[n + 0].toString();
+        const key2 = headers[n + 0].toString();
         const val = headers[n + 1].toString("utf8");
-        if (key.length === 14 && (key === "content-length" || key.toLowerCase() === "content-length")) {
-          ret.push(key, val);
+        if (key2.length === 14 && (key2 === "content-length" || key2.toLowerCase() === "content-length")) {
+          ret.push(key2, val);
           hasContentLength = true;
-        } else if (key.length === 19 && (key === "content-disposition" || key.toLowerCase() === "content-disposition")) {
-          contentDispositionIdx = ret.push(key, val) - 1;
+        } else if (key2.length === 19 && (key2 === "content-disposition" || key2.toLowerCase() === "content-disposition")) {
+          contentDispositionIdx = ret.push(key2, val) - 1;
         } else {
-          ret.push(key, val);
+          ret.push(key2, val);
         }
       }
       if (hasContentLength && contentDispositionIdx !== -1) {
@@ -3184,12 +3184,12 @@ var require_urlencoded = __commonJS({
             p = idxeq + 1;
           } else if (idxamp !== void 0) {
             ++this._fields;
-            let key;
+            let key2;
             const keyTrunc = this._keyTrunc;
             if (idxamp > p) {
-              key = this._key += this.decoder.write(data.toString("binary", p, idxamp));
+              key2 = this._key += this.decoder.write(data.toString("binary", p, idxamp));
             } else {
-              key = this._key;
+              key2 = this._key;
             }
             this._hitLimit = false;
             this._checkingBytes = true;
@@ -3197,10 +3197,10 @@ var require_urlencoded = __commonJS({
             this._bytesKey = 0;
             this._keyTrunc = false;
             this.decoder.reset();
-            if (key.length) {
+            if (key2.length) {
               this.boy.emit(
                 "field",
-                decodeText(key, "binary", this.charset),
+                decodeText(key2, "binary", this.charset),
                 "",
                 keyTrunc,
                 false
@@ -4190,7 +4190,7 @@ var require_util2 = __commonJS({
       const protocol = url.protocol;
       return protocol === "http:" || protocol === "https:";
     }
-    var hasOwn = Object.hasOwn || ((dict, key) => Object.prototype.hasOwnProperty.call(dict, key));
+    var hasOwn = Object.hasOwn || ((dict, key2) => Object.prototype.hasOwnProperty.call(dict, key2));
     module2.exports = {
       isAborted: isAborted2,
       isCancelled,
@@ -4427,19 +4427,19 @@ var require_webidl = __commonJS({
         const result = {};
         if (!types.isProxy(O)) {
           const keys2 = Object.keys(O);
-          for (const key of keys2) {
-            const typedKey = keyConverter(key);
-            const typedValue = valueConverter(O[key]);
+          for (const key2 of keys2) {
+            const typedKey = keyConverter(key2);
+            const typedValue = valueConverter(O[key2]);
             result[typedKey] = typedValue;
           }
           return result;
         }
         const keys = Reflect.ownKeys(O);
-        for (const key of keys) {
-          const desc = Reflect.getOwnPropertyDescriptor(O, key);
+        for (const key2 of keys) {
+          const desc = Reflect.getOwnPropertyDescriptor(O, key2);
           if (desc?.enumerable) {
-            const typedKey = keyConverter(key);
-            const typedValue = valueConverter(O[key]);
+            const typedKey = keyConverter(key2);
+            const typedValue = valueConverter(O[key2]);
             result[typedKey] = typedValue;
           }
         }
@@ -4470,16 +4470,16 @@ var require_webidl = __commonJS({
           });
         }
         for (const options2 of converters) {
-          const { key, defaultValue, required, converter } = options2;
+          const { key: key2, defaultValue, required, converter } = options2;
           if (required === true) {
-            if (!hasOwn(dictionary, key)) {
+            if (!hasOwn(dictionary, key2)) {
               throw webidl.errors.exception({
                 header: "Dictionary",
-                message: `Missing required key "${key}".`
+                message: `Missing required key "${key2}".`
               });
             }
           }
-          let value = dictionary[key];
+          let value = dictionary[key2];
           const hasDefault = hasOwn(options2, "defaultValue");
           if (hasDefault && value !== null) {
             value = value ?? defaultValue;
@@ -4492,7 +4492,7 @@ var require_webidl = __commonJS({
                 message: `${value} is not an accepted type. Expected one of ${options2.allowedValues.join(", ")}.`
               });
             }
-            dict[key] = value;
+            dict[key2] = value;
           }
         }
         return dict;
@@ -5218,8 +5218,8 @@ var require_formdata = __commonJS({
             "Failed to execute 'forEach' on 'FormData': parameter 1 is not of type 'Function'."
           );
         }
-        for (const [key, value] of this) {
-          callbackFn.apply(thisArg, [value, key, this]);
+        for (const [key2, value] of this) {
+          callbackFn.apply(thisArg, [value, key2, this]);
         }
       }
     };
@@ -5494,7 +5494,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
           const contentType = this.headers.get("Content-Type");
           if (/multipart\/form-data/.test(contentType)) {
             const headers = {};
-            for (const [key, value] of this.headers) headers[key.toLowerCase()] = value;
+            for (const [key2, value] of this.headers) headers[key2.toLowerCase()] = value;
             const responseFormData = new FormData();
             let busboy;
             try {
@@ -5764,8 +5764,8 @@ var require_request = __commonJS({
         } else if (headers && typeof headers === "object") {
           const keys = Object.keys(headers);
           for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            processHeader(this, key, headers[key]);
+            const key2 = keys[i];
+            processHeader(this, key2, headers[key2]);
           }
         } else if (headers != null) {
           throw new InvalidArgumentError("headers must be an object or an array");
@@ -5890,8 +5890,8 @@ var require_request = __commonJS({
         }
       }
       // TODO: adjust to support H2
-      addHeader(key, value) {
-        processHeader(this, key, value);
+      addHeader(key2, value) {
+        processHeader(this, key2, value);
         return this;
       }
       static [kHTTP1BuildRequest](origin, opts, handler2) {
@@ -5912,8 +5912,8 @@ var require_request = __commonJS({
         } else if (headers && typeof headers === "object") {
           const keys = Object.keys(headers);
           for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            processHeader(request2, key, headers[key], true);
+            const key2 = keys[i];
+            processHeader(request2, key2, headers[key2], true);
           }
         } else if (headers != null) {
           throw new InvalidArgumentError("headers must be an object or an array");
@@ -5924,75 +5924,75 @@ var require_request = __commonJS({
         const rawHeaders = raw.split("\r\n");
         const headers = {};
         for (const header of rawHeaders) {
-          const [key, value] = header.split(": ");
+          const [key2, value] = header.split(": ");
           if (value == null || value.length === 0) continue;
-          if (headers[key]) headers[key] += `,${value}`;
-          else headers[key] = value;
+          if (headers[key2]) headers[key2] += `,${value}`;
+          else headers[key2] = value;
         }
         return headers;
       }
     };
-    function processHeaderValue(key, val, skipAppend) {
+    function processHeaderValue(key2, val, skipAppend) {
       if (val && typeof val === "object") {
-        throw new InvalidArgumentError(`invalid ${key} header`);
+        throw new InvalidArgumentError(`invalid ${key2} header`);
       }
       val = val != null ? `${val}` : "";
       if (headerCharRegex.exec(val) !== null) {
-        throw new InvalidArgumentError(`invalid ${key} header`);
+        throw new InvalidArgumentError(`invalid ${key2} header`);
       }
-      return skipAppend ? val : `${key}: ${val}\r
+      return skipAppend ? val : `${key2}: ${val}\r
 `;
     }
-    function processHeader(request2, key, val, skipAppend = false) {
+    function processHeader(request2, key2, val, skipAppend = false) {
       if (val && (typeof val === "object" && !Array.isArray(val))) {
-        throw new InvalidArgumentError(`invalid ${key} header`);
+        throw new InvalidArgumentError(`invalid ${key2} header`);
       } else if (val === void 0) {
         return;
       }
-      if (request2.host === null && key.length === 4 && key.toLowerCase() === "host") {
+      if (request2.host === null && key2.length === 4 && key2.toLowerCase() === "host") {
         if (headerCharRegex.exec(val) !== null) {
-          throw new InvalidArgumentError(`invalid ${key} header`);
+          throw new InvalidArgumentError(`invalid ${key2} header`);
         }
         request2.host = val;
-      } else if (request2.contentLength === null && key.length === 14 && key.toLowerCase() === "content-length") {
+      } else if (request2.contentLength === null && key2.length === 14 && key2.toLowerCase() === "content-length") {
         request2.contentLength = parseInt(val, 10);
         if (!Number.isFinite(request2.contentLength)) {
           throw new InvalidArgumentError("invalid content-length header");
         }
-      } else if (request2.contentType === null && key.length === 12 && key.toLowerCase() === "content-type") {
+      } else if (request2.contentType === null && key2.length === 12 && key2.toLowerCase() === "content-type") {
         request2.contentType = val;
-        if (skipAppend) request2.headers[key] = processHeaderValue(key, val, skipAppend);
-        else request2.headers += processHeaderValue(key, val);
-      } else if (key.length === 17 && key.toLowerCase() === "transfer-encoding") {
+        if (skipAppend) request2.headers[key2] = processHeaderValue(key2, val, skipAppend);
+        else request2.headers += processHeaderValue(key2, val);
+      } else if (key2.length === 17 && key2.toLowerCase() === "transfer-encoding") {
         throw new InvalidArgumentError("invalid transfer-encoding header");
-      } else if (key.length === 10 && key.toLowerCase() === "connection") {
+      } else if (key2.length === 10 && key2.toLowerCase() === "connection") {
         const value = typeof val === "string" ? val.toLowerCase() : null;
         if (value !== "close" && value !== "keep-alive") {
           throw new InvalidArgumentError("invalid connection header");
         } else if (value === "close") {
           request2.reset = true;
         }
-      } else if (key.length === 10 && key.toLowerCase() === "keep-alive") {
+      } else if (key2.length === 10 && key2.toLowerCase() === "keep-alive") {
         throw new InvalidArgumentError("invalid keep-alive header");
-      } else if (key.length === 7 && key.toLowerCase() === "upgrade") {
+      } else if (key2.length === 7 && key2.toLowerCase() === "upgrade") {
         throw new InvalidArgumentError("invalid upgrade header");
-      } else if (key.length === 6 && key.toLowerCase() === "expect") {
+      } else if (key2.length === 6 && key2.toLowerCase() === "expect") {
         throw new NotSupportedError("expect header not supported");
-      } else if (tokenRegExp.exec(key) === null) {
+      } else if (tokenRegExp.exec(key2) === null) {
         throw new InvalidArgumentError("invalid header key");
       } else {
         if (Array.isArray(val)) {
           for (let i = 0; i < val.length; i++) {
             if (skipAppend) {
-              if (request2.headers[key]) request2.headers[key] += `,${processHeaderValue(key, val[i], skipAppend)}`;
-              else request2.headers[key] = processHeaderValue(key, val[i], skipAppend);
+              if (request2.headers[key2]) request2.headers[key2] += `,${processHeaderValue(key2, val[i], skipAppend)}`;
+              else request2.headers[key2] = processHeaderValue(key2, val[i], skipAppend);
             } else {
-              request2.headers += processHeaderValue(key, val[i]);
+              request2.headers += processHeaderValue(key2, val[i]);
             }
           }
         } else {
-          if (skipAppend) request2.headers[key] = processHeaderValue(key, val, skipAppend);
-          else request2.headers += processHeaderValue(key, val);
+          if (skipAppend) request2.headers[key2] = processHeaderValue(key2, val, skipAppend);
+          else request2.headers += processHeaderValue(key2, val);
         }
       }
     }
@@ -6198,13 +6198,13 @@ var require_connect = __commonJS({
         constructor(maxCachedSessions) {
           this._maxCachedSessions = maxCachedSessions;
           this._sessionCache = /* @__PURE__ */ new Map();
-          this._sessionRegistry = new global.FinalizationRegistry((key) => {
+          this._sessionRegistry = new global.FinalizationRegistry((key2) => {
             if (this._sessionCache.size < this._maxCachedSessions) {
               return;
             }
-            const ref = this._sessionCache.get(key);
+            const ref = this._sessionCache.get(key2);
             if (ref !== void 0 && ref.deref() === void 0) {
-              this._sessionCache.delete(key);
+              this._sessionCache.delete(key2);
             }
           });
         }
@@ -6347,10 +6347,10 @@ var require_utils2 = __commonJS({
     exports2.enumToMap = void 0;
     function enumToMap(obj) {
       const res = {};
-      Object.keys(obj).forEach((key) => {
-        const value = obj[key];
+      Object.keys(obj).forEach((key2) => {
+        const value = obj[key2];
         if (typeof value === "number") {
-          res[key] = value;
+          res[key2] = value;
         }
       });
       return res;
@@ -6527,9 +6527,9 @@ var require_constants3 = __commonJS({
     ];
     exports2.METHOD_MAP = utils_1.enumToMap(METHODS);
     exports2.H_METHOD_MAP = {};
-    Object.keys(exports2.METHOD_MAP).forEach((key) => {
-      if (/^H/.test(key)) {
-        exports2.H_METHOD_MAP[key] = exports2.METHOD_MAP[key];
+    Object.keys(exports2.METHOD_MAP).forEach((key2) => {
+      if (/^H/.test(key2)) {
+        exports2.H_METHOD_MAP[key2] = exports2.METHOD_MAP[key2];
       }
     });
     var FINISH;
@@ -6816,9 +6816,9 @@ var require_RedirectHandler = __commonJS({
           }
         }
       } else if (headers && typeof headers === "object") {
-        for (const key of Object.keys(headers)) {
-          if (!shouldRemoveHeader(key, removeContent, unknownOrigin)) {
-            ret.push(key, headers[key]);
+        for (const key2 of Object.keys(headers)) {
+          if (!shouldRemoveHeader(key2, removeContent, unknownOrigin)) {
+            ret.push(key2, headers[key2]);
           }
         }
       } else {
@@ -7468,12 +7468,12 @@ var require_client = __commonJS({
         } else {
           this.headers[len - 1] = Buffer.concat([this.headers[len - 1], buf]);
         }
-        const key = this.headers[len - 2];
-        if (key.length === 10 && key.toString().toLowerCase() === "keep-alive") {
+        const key2 = this.headers[len - 2];
+        if (key2.length === 10 && key2.toString().toLowerCase() === "keep-alive") {
           this.keepAlive += buf.toString();
-        } else if (key.length === 10 && key.toString().toLowerCase() === "connection") {
+        } else if (key2.length === 10 && key2.toString().toLowerCase() === "connection") {
           this.connection += buf.toString();
-        } else if (key.length === 14 && key.toString().toLowerCase() === "content-length") {
+        } else if (key2.length === 14 && key2.toString().toLowerCase() === "content-length") {
           this.contentLength += buf.toString();
         }
         this.trackHeader(buf.length);
@@ -9059,11 +9059,11 @@ var require_dispatcher_weakref = __commonJS({
       constructor(finalizer) {
         this.finalizer = finalizer;
       }
-      register(dispatcher, key) {
+      register(dispatcher, key2) {
         if (dispatcher.on) {
           dispatcher.on("disconnect", () => {
             if (dispatcher[kConnected] === 0 && dispatcher[kSize] === 0) {
-              this.finalizer(key);
+              this.finalizer(key2);
             }
           });
         }
@@ -9130,10 +9130,10 @@ var require_agent = __commonJS({
         this[kClients] = /* @__PURE__ */ new Map();
         this[kFinalizer] = new FinalizationRegistry(
           /* istanbul ignore next: gc is undeterministic */
-          (key) => {
-            const ref = this[kClients].get(key);
+          (key2) => {
+            const ref = this[kClients].get(key2);
             if (ref !== void 0 && ref.deref() === void 0) {
-              this[kClients].delete(key);
+              this[kClients].delete(key2);
             }
           }
         );
@@ -9162,18 +9162,18 @@ var require_agent = __commonJS({
         return ret;
       }
       [kDispatch](opts, handler2) {
-        let key;
+        let key2;
         if (opts.origin && (typeof opts.origin === "string" || opts.origin instanceof URL)) {
-          key = String(opts.origin);
+          key2 = String(opts.origin);
         } else {
           throw new InvalidArgumentError("opts.origin must be a non-empty string or URL.");
         }
-        const ref = this[kClients].get(key);
+        const ref = this[kClients].get(key2);
         let dispatcher = ref ? ref.deref() : null;
         if (!dispatcher) {
           dispatcher = this[kFactory](opts.origin, this[kOptions]).on("drain", this[kOnDrain]).on("connect", this[kOnConnect]).on("disconnect", this[kOnDisconnect]).on("connectionError", this[kOnConnectionError]);
-          this[kClients].set(key, new WeakRef2(dispatcher));
-          this[kFinalizer].register(dispatcher, key);
+          this[kClients].set(key2, new WeakRef2(dispatcher));
+          this[kFinalizer].register(dispatcher, key2);
         }
         return dispatcher.dispatch(opts, handler2);
       }
@@ -10347,18 +10347,18 @@ var require_mock_utils = __commonJS({
         })
       );
     }
-    function getHeaderByName(headers, key) {
+    function getHeaderByName(headers, key2) {
       if (Array.isArray(headers)) {
         for (let i = 0; i < headers.length; i += 2) {
-          if (headers[i].toLocaleLowerCase() === key.toLocaleLowerCase()) {
+          if (headers[i].toLocaleLowerCase() === key2.toLocaleLowerCase()) {
             return headers[i + 1];
           }
         }
         return void 0;
       } else if (typeof headers.get === "function") {
-        return headers.get(key);
+        return headers.get(key2);
       } else {
-        return lowerCaseEntries(headers)[key.toLocaleLowerCase()];
+        return lowerCaseEntries(headers)[key2.toLocaleLowerCase()];
       }
     }
     function buildHeadersFromArray(headers) {
@@ -10418,40 +10418,40 @@ var require_mock_utils = __commonJS({
         return data.toString();
       }
     }
-    function getMockDispatch(mockDispatches, key) {
-      const basePath = key.query ? buildURL(key.path, key.query) : key.path;
+    function getMockDispatch(mockDispatches, key2) {
+      const basePath = key2.query ? buildURL(key2.path, key2.query) : key2.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
       let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path }) => matchValue(safeUrl(path), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
-      matchedMockDispatches = matchedMockDispatches.filter(({ method }) => matchValue(method, key.method));
+      matchedMockDispatches = matchedMockDispatches.filter(({ method }) => matchValue(method, key2.method));
       if (matchedMockDispatches.length === 0) {
-        throw new MockNotMatchedError(`Mock dispatch not matched for method '${key.method}'`);
+        throw new MockNotMatchedError(`Mock dispatch not matched for method '${key2.method}'`);
       }
-      matchedMockDispatches = matchedMockDispatches.filter(({ body }) => typeof body !== "undefined" ? matchValue(body, key.body) : true);
+      matchedMockDispatches = matchedMockDispatches.filter(({ body }) => typeof body !== "undefined" ? matchValue(body, key2.body) : true);
       if (matchedMockDispatches.length === 0) {
-        throw new MockNotMatchedError(`Mock dispatch not matched for body '${key.body}'`);
+        throw new MockNotMatchedError(`Mock dispatch not matched for body '${key2.body}'`);
       }
-      matchedMockDispatches = matchedMockDispatches.filter((mockDispatch2) => matchHeaders(mockDispatch2, key.headers));
+      matchedMockDispatches = matchedMockDispatches.filter((mockDispatch2) => matchHeaders(mockDispatch2, key2.headers));
       if (matchedMockDispatches.length === 0) {
-        throw new MockNotMatchedError(`Mock dispatch not matched for headers '${typeof key.headers === "object" ? JSON.stringify(key.headers) : key.headers}'`);
+        throw new MockNotMatchedError(`Mock dispatch not matched for headers '${typeof key2.headers === "object" ? JSON.stringify(key2.headers) : key2.headers}'`);
       }
       return matchedMockDispatches[0];
     }
-    function addMockDispatch(mockDispatches, key, data) {
+    function addMockDispatch(mockDispatches, key2, data) {
       const baseData = { timesInvoked: 0, times: 1, persist: false, consumed: false };
       const replyData = typeof data === "function" ? { callback: data } : { ...data };
-      const newMockDispatch = { ...baseData, ...key, pending: true, data: { error: null, ...replyData } };
+      const newMockDispatch = { ...baseData, ...key2, pending: true, data: { error: null, ...replyData } };
       mockDispatches.push(newMockDispatch);
       return newMockDispatch;
     }
-    function deleteMockDispatch(mockDispatches, key) {
+    function deleteMockDispatch(mockDispatches, key2) {
       const index = mockDispatches.findIndex((dispatch) => {
         if (!dispatch.consumed) {
           return false;
         }
-        return matchKey(dispatch, key);
+        return matchKey(dispatch, key2);
       });
       if (index !== -1) {
         mockDispatches.splice(index, 1);
@@ -10468,9 +10468,9 @@ var require_mock_utils = __commonJS({
       };
     }
     function generateKeyValues(data) {
-      return Object.entries(data).reduce((keyValuePairs, [key, value]) => [
+      return Object.entries(data).reduce((keyValuePairs, [key2, value]) => [
         ...keyValuePairs,
-        Buffer.from(`${key}`),
+        Buffer.from(`${key2}`),
         Array.isArray(value) ? value.map((x) => Buffer.from(`${x}`)) : Buffer.from(`${value}`)
       ], []);
     }
@@ -10485,8 +10485,8 @@ var require_mock_utils = __commonJS({
       return Buffer.concat(buffers).toString("utf8");
     }
     function mockDispatch(opts, handler2) {
-      const key = buildKey(opts);
-      const mockDispatch2 = getMockDispatch(this[kDispatches], key);
+      const key2 = buildKey(opts);
+      const mockDispatch2 = getMockDispatch(this[kDispatches], key2);
       mockDispatch2.timesInvoked++;
       if (mockDispatch2.data.callback) {
         mockDispatch2.data = { ...mockDispatch2.data, ...mockDispatch2.data.callback(opts) };
@@ -10496,7 +10496,7 @@ var require_mock_utils = __commonJS({
       mockDispatch2.consumed = !persist && timesInvoked >= times;
       mockDispatch2.pending = timesInvoked < times;
       if (error !== null) {
-        deleteMockDispatch(this[kDispatches], key);
+        deleteMockDispatch(this[kDispatches], key2);
         handler2.onError(error);
         return true;
       }
@@ -10521,7 +10521,7 @@ var require_mock_utils = __commonJS({
         handler2.onHeaders(statusCode, responseHeaders, resume, getStatusText(statusCode));
         handler2.onData(Buffer.from(responseData));
         handler2.onComplete(responseTrailers);
-        deleteMockDispatch(mockDispatches, key);
+        deleteMockDispatch(mockDispatches, key2);
       }
       function resume() {
       }
@@ -11208,7 +11208,7 @@ var require_proxy_agent = __commonJS({
       return headers;
     }
     function throwIfProxyAuthIsSent(headers) {
-      const existProxyAuth = headers && Object.keys(headers).find((key) => key.toLowerCase() === "proxy-authorization");
+      const existProxyAuth = headers && Object.keys(headers).find((key2) => key2.toLowerCase() === "proxy-authorization");
       if (existProxyAuth) {
         throw new InvalidArgumentError("Proxy-Authorization should be sent in ProxyAgent constructor");
       }
@@ -11887,8 +11887,8 @@ var require_headers = __commonJS({
             "Failed to execute 'forEach' on 'Headers': parameter 1 is not of type 'Function'."
           );
         }
-        for (const [key, value] of this) {
-          callbackFn.apply(thisArg, [value, key, this]);
+        for (const [key2, value] of this) {
+          callbackFn.apply(thisArg, [value, key2, this]);
         }
       }
       [Symbol.for("nodejs.util.inspect.custom")]() {
@@ -12583,8 +12583,8 @@ var require_request2 = __commonJS({
           const headers = init.headers !== void 0 ? init.headers : new HeadersList(headersList);
           headersList.clear();
           if (headers instanceof HeadersList) {
-            for (const [key, val] of headers) {
-              headersList.append(key, val);
+            for (const [key2, val] of headers) {
+              headersList.append(key2, val);
             }
             headersList.cookies = headers.cookies;
           } else {
@@ -13883,25 +13883,25 @@ var require_fetch = __commonJS({
               const headers = new Headers();
               if (Array.isArray(headersList)) {
                 for (let n = 0; n < headersList.length; n += 2) {
-                  const key = headersList[n + 0].toString("latin1");
+                  const key2 = headersList[n + 0].toString("latin1");
                   const val = headersList[n + 1].toString("latin1");
-                  if (key.toLowerCase() === "content-encoding") {
+                  if (key2.toLowerCase() === "content-encoding") {
                     codings = val.toLowerCase().split(",").map((x) => x.trim());
-                  } else if (key.toLowerCase() === "location") {
+                  } else if (key2.toLowerCase() === "location") {
                     location = val;
                   }
-                  headers[kHeadersList].append(key, val);
+                  headers[kHeadersList].append(key2, val);
                 }
               } else {
                 const keys = Object.keys(headersList);
-                for (const key of keys) {
-                  const val = headersList[key];
-                  if (key.toLowerCase() === "content-encoding") {
+                for (const key2 of keys) {
+                  const val = headersList[key2];
+                  if (key2.toLowerCase() === "content-encoding") {
                     codings = val.toLowerCase().split(",").map((x) => x.trim()).reverse();
-                  } else if (key.toLowerCase() === "location") {
+                  } else if (key2.toLowerCase() === "location") {
                     location = val;
                   }
-                  headers[kHeadersList].append(key, val);
+                  headers[kHeadersList].append(key2, val);
                 }
               }
               this.body = new Readable({ read: resume });
@@ -13967,9 +13967,9 @@ var require_fetch = __commonJS({
               }
               const headers = new Headers();
               for (let n = 0; n < headersList.length; n += 2) {
-                const key = headersList[n + 0].toString("latin1");
+                const key2 = headersList[n + 0].toString("latin1");
                 const val = headersList[n + 1].toString("latin1");
-                headers[kHeadersList].append(key, val);
+                headers[kHeadersList].append(key2, val);
               }
               resolve({
                 status,
@@ -15629,8 +15629,8 @@ var require_util6 = __commonJS({
         if (!part.includes("=")) {
           throw new Error("Invalid unparsed");
         }
-        const [key, ...value] = part.split("=");
-        out.push(`${key.trim()}=${value.join("=")}`);
+        const [key2, ...value] = part.split("=");
+        out.push(`${key2.trim()}=${value.join("=")}`);
       }
       return out.join("; ");
     }
@@ -17863,7 +17863,7 @@ var require_lib = __commonJS({
             if (statusCode === HttpCodes.NotFound) {
               resolve(response);
             }
-            function dateTimeDeserializer(key, value) {
+            function dateTimeDeserializer(key2, value) {
               if (typeof value === "string") {
                 const a = new Date(value);
                 if (!isNaN(a.valueOf())) {
@@ -18189,7 +18189,7 @@ var require_summary = __commonJS({
        * @returns {string} content wrapped in HTML element
        */
       wrap(tag, content, attrs = {}) {
-        const htmlAttrs = Object.entries(attrs).map(([key, value]) => ` ${key}="${value}"`).join("");
+        const htmlAttrs = Object.entries(attrs).map(([key2, value]) => ` ${key2}="${value}"`).join("");
         if (!content) {
           return `<${tag}${htmlAttrs}>`;
         }
@@ -19966,14 +19966,14 @@ var require_extend_shallow = __commonJS({
       return o;
     };
     function assign(a, b) {
-      for (var key in b) {
-        if (hasOwn(b, key)) {
-          a[key] = b[key];
+      for (var key2 in b) {
+        if (hasOwn(b, key2)) {
+          a[key2] = b[key2];
         }
       }
     }
-    function hasOwn(obj, key) {
-      return Object.prototype.hasOwnProperty.call(obj, key);
+    function hasOwn(obj, key2) {
+      return Object.prototype.hasOwnProperty.call(obj, key2);
     }
   }
 });
@@ -20101,12 +20101,12 @@ var require_common = __commonJS({
       return [sequence];
     }
     function extend(target, source) {
-      var index, length, key, sourceKeys;
+      var index, length, key2, sourceKeys;
       if (source) {
         sourceKeys = Object.keys(source);
         for (index = 0, length = sourceKeys.length; index < length; index += 1) {
-          key = sourceKeys[index];
-          target[key] = source[key];
+          key2 = sourceKeys[index];
+          target[key2] = source[key2];
         }
       }
       return target;
@@ -21011,10 +21011,10 @@ var require_set = __commonJS({
     var _hasOwnProperty = Object.prototype.hasOwnProperty;
     function resolveYamlSet(data) {
       if (data === null) return true;
-      var key, object = data;
-      for (key in object) {
-        if (_hasOwnProperty.call(object, key)) {
-          if (object[key] !== null) return false;
+      var key2, object = data;
+      for (key2 in object) {
+        if (_hasOwnProperty.call(object, key2)) {
+          if (object[key2] !== null) return false;
         }
       }
       return true;
@@ -21275,16 +21275,16 @@ var require_loader = __commonJS({
         (c - 65536 & 1023) + 56320
       );
     }
-    function setProperty(object, key, value) {
-      if (key === "__proto__") {
-        Object.defineProperty(object, key, {
+    function setProperty(object, key2, value) {
+      if (key2 === "__proto__") {
+        Object.defineProperty(object, key2, {
           configurable: true,
           enumerable: true,
           writable: true,
           value
         });
       } else {
-        object[key] = value;
+        object[key2] = value;
       }
     }
     var simpleEscapeCheck = new Array(256);
@@ -21386,16 +21386,16 @@ var require_loader = __commonJS({
       }
     }
     function mergeMappings(state, destination, source, overridableKeys) {
-      var sourceKeys, key, index, quantity;
+      var sourceKeys, key2, index, quantity;
       if (!common.isObject(source)) {
         throwError(state, "cannot merge mappings; the provided source object is unacceptable");
       }
       sourceKeys = Object.keys(source);
       for (index = 0, quantity = sourceKeys.length; index < quantity; index += 1) {
-        key = sourceKeys[index];
-        if (!_hasOwnProperty.call(destination, key)) {
-          setProperty(destination, key, source[key]);
-          overridableKeys[key] = true;
+        key2 = sourceKeys[index];
+        if (!_hasOwnProperty.call(destination, key2)) {
+          setProperty(destination, key2, source[key2]);
+          overridableKeys[key2] = true;
         }
       }
     }
@@ -22965,8 +22965,8 @@ var require_utils3 = __commonJS({
     "use strict";
     var stripBom = require_strip_bom_string();
     var typeOf = require_kind_of();
-    exports2.define = function(obj, key, val) {
-      Reflect.defineProperty(obj, key, {
+    exports2.define = function(obj, key2, val) {
+      Reflect.defineProperty(obj, key2, {
         enumerable: false,
         configurable: true,
         writable: true,
@@ -23335,9 +23335,9 @@ var init_util = __esm({
       };
       util2.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object) => {
         const keys = [];
-        for (const key in object) {
-          if (Object.prototype.hasOwnProperty.call(object, key)) {
-            keys.push(key);
+        for (const key2 in object) {
+          if (Object.prototype.hasOwnProperty.call(object, key2)) {
+            keys.push(key2);
           }
         }
         return keys;
@@ -23762,10 +23762,10 @@ var init_parseUtil = __esm({
       static async mergeObjectAsync(status, pairs) {
         const syncPairs = [];
         for (const pair of pairs) {
-          const key = await pair.key;
+          const key2 = await pair.key;
           const value = await pair.value;
           syncPairs.push({
-            key,
+            key: key2,
             value
           });
         }
@@ -23774,17 +23774,17 @@ var init_parseUtil = __esm({
       static mergeObjectSync(status, pairs) {
         const finalObject = {};
         for (const pair of pairs) {
-          const { key, value } = pair;
-          if (key.status === "aborted")
+          const { key: key2, value } = pair;
+          if (key2.status === "aborted")
             return INVALID;
           if (value.status === "aborted")
             return INVALID;
-          if (key.status === "dirty")
+          if (key2.status === "dirty")
             status.dirty();
           if (value.status === "dirty")
             status.dirty();
-          if (key.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
-            finalObject[key.value] = value.value;
+          if (key2.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
+            finalObject[key2.value] = value.value;
           }
         }
         return { status: status.value, value: finalObject };
@@ -23916,9 +23916,9 @@ function floatSafeRemainder(val, step) {
 function deepPartialify(schema) {
   if (schema instanceof ZodObject) {
     const newShape = {};
-    for (const key in schema.shape) {
-      const fieldSchema = schema.shape[key];
-      newShape[key] = ZodOptional.create(deepPartialify(fieldSchema));
+    for (const key2 in schema.shape) {
+      const fieldSchema = schema.shape[key2];
+      newShape[key2] = ZodOptional.create(deepPartialify(fieldSchema));
     }
     return new ZodObject({
       ...schema._def,
@@ -23946,14 +23946,14 @@ function mergeValues(a, b) {
     return { valid: true, data: a };
   } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
     const bKeys = util.objectKeys(b);
-    const sharedKeys = util.objectKeys(a).filter((key) => bKeys.indexOf(key) !== -1);
+    const sharedKeys = util.objectKeys(a).filter((key2) => bKeys.indexOf(key2) !== -1);
     const newObj = { ...a, ...b };
-    for (const key of sharedKeys) {
-      const sharedValue = mergeValues(a[key], b[key]);
+    for (const key2 of sharedKeys) {
+      const sharedValue = mergeValues(a[key2], b[key2]);
       if (!sharedValue.valid) {
         return { valid: false };
       }
-      newObj[key] = sharedValue.data;
+      newObj[key2] = sharedValue.data;
     }
     return { valid: true, data: newObj };
   } else if (aType === ZodParsedType.array && bType === ZodParsedType.array) {
@@ -24020,12 +24020,12 @@ var init_types = __esm({
     init_parseUtil();
     init_util();
     ParseInputLazyPath = class {
-      constructor(parent, value, path, key) {
+      constructor(parent, value, path, key2) {
         this._cachedPath = [];
         this.parent = parent;
         this.data = value;
         this._path = path;
-        this._key = key;
+        this._key = key2;
       }
       get path() {
         if (!this._cachedPath.length) {
@@ -25703,29 +25703,29 @@ var init_types = __esm({
         const { shape, keys: shapeKeys } = this._getCached();
         const extraKeys = [];
         if (!(this._def.catchall instanceof ZodNever && this._def.unknownKeys === "strip")) {
-          for (const key in ctx.data) {
-            if (!shapeKeys.includes(key)) {
-              extraKeys.push(key);
+          for (const key2 in ctx.data) {
+            if (!shapeKeys.includes(key2)) {
+              extraKeys.push(key2);
             }
           }
         }
         const pairs = [];
-        for (const key of shapeKeys) {
-          const keyValidator = shape[key];
-          const value = ctx.data[key];
+        for (const key2 of shapeKeys) {
+          const keyValidator = shape[key2];
+          const value = ctx.data[key2];
           pairs.push({
-            key: { status: "valid", value: key },
-            value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
-            alwaysSet: key in ctx.data
+            key: { status: "valid", value: key2 },
+            value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key2)),
+            alwaysSet: key2 in ctx.data
           });
         }
         if (this._def.catchall instanceof ZodNever) {
           const unknownKeys = this._def.unknownKeys;
           if (unknownKeys === "passthrough") {
-            for (const key of extraKeys) {
+            for (const key2 of extraKeys) {
               pairs.push({
-                key: { status: "valid", value: key },
-                value: { status: "valid", value: ctx.data[key] }
+                key: { status: "valid", value: key2 },
+                value: { status: "valid", value: ctx.data[key2] }
               });
             }
           } else if (unknownKeys === "strict") {
@@ -25742,15 +25742,15 @@ var init_types = __esm({
           }
         } else {
           const catchall = this._def.catchall;
-          for (const key of extraKeys) {
-            const value = ctx.data[key];
+          for (const key2 of extraKeys) {
+            const value = ctx.data[key2];
             pairs.push({
-              key: { status: "valid", value: key },
+              key: { status: "valid", value: key2 },
               value: catchall._parse(
-                new ParseInputLazyPath(ctx, value, ctx.path, key)
+                new ParseInputLazyPath(ctx, value, ctx.path, key2)
                 //, ctx.child(key), value, getParsedType(value)
               ),
-              alwaysSet: key in ctx.data
+              alwaysSet: key2 in ctx.data
             });
           }
         }
@@ -25758,10 +25758,10 @@ var init_types = __esm({
           return Promise.resolve().then(async () => {
             const syncPairs = [];
             for (const pair of pairs) {
-              const key = await pair.key;
+              const key2 = await pair.key;
               const value = await pair.value;
               syncPairs.push({
-                key,
+                key: key2,
                 value,
                 alwaysSet: pair.alwaysSet
               });
@@ -25886,8 +25886,8 @@ var init_types = __esm({
       //   }) as any;
       //   return merged;
       // }
-      setKey(key, schema) {
-        return this.augment({ [key]: schema });
+      setKey(key2, schema) {
+        return this.augment({ [key2]: schema });
       }
       // merge<Incoming extends AnyZodObject>(
       //   merging: Incoming
@@ -25918,9 +25918,9 @@ var init_types = __esm({
       }
       pick(mask) {
         const shape = {};
-        for (const key of util.objectKeys(mask)) {
-          if (mask[key] && this.shape[key]) {
-            shape[key] = this.shape[key];
+        for (const key2 of util.objectKeys(mask)) {
+          if (mask[key2] && this.shape[key2]) {
+            shape[key2] = this.shape[key2];
           }
         }
         return new _ZodObject({
@@ -25930,9 +25930,9 @@ var init_types = __esm({
       }
       omit(mask) {
         const shape = {};
-        for (const key of util.objectKeys(this.shape)) {
-          if (!mask[key]) {
-            shape[key] = this.shape[key];
+        for (const key2 of util.objectKeys(this.shape)) {
+          if (!mask[key2]) {
+            shape[key2] = this.shape[key2];
           }
         }
         return new _ZodObject({
@@ -25948,12 +25948,12 @@ var init_types = __esm({
       }
       partial(mask) {
         const newShape = {};
-        for (const key of util.objectKeys(this.shape)) {
-          const fieldSchema = this.shape[key];
-          if (mask && !mask[key]) {
-            newShape[key] = fieldSchema;
+        for (const key2 of util.objectKeys(this.shape)) {
+          const fieldSchema = this.shape[key2];
+          if (mask && !mask[key2]) {
+            newShape[key2] = fieldSchema;
           } else {
-            newShape[key] = fieldSchema.optional();
+            newShape[key2] = fieldSchema.optional();
           }
         }
         return new _ZodObject({
@@ -25963,16 +25963,16 @@ var init_types = __esm({
       }
       required(mask) {
         const newShape = {};
-        for (const key of util.objectKeys(this.shape)) {
-          if (mask && !mask[key]) {
-            newShape[key] = this.shape[key];
+        for (const key2 of util.objectKeys(this.shape)) {
+          if (mask && !mask[key2]) {
+            newShape[key2] = this.shape[key2];
           } else {
-            const fieldSchema = this.shape[key];
+            const fieldSchema = this.shape[key2];
             let newField = fieldSchema;
             while (newField instanceof ZodOptional) {
               newField = newField._def.innerType;
             }
-            newShape[key] = newField;
+            newShape[key2] = newField;
           }
         }
         return new _ZodObject({
@@ -26349,11 +26349,11 @@ var init_types = __esm({
         const pairs = [];
         const keyType = this._def.keyType;
         const valueType = this._def.valueType;
-        for (const key in ctx.data) {
+        for (const key2 in ctx.data) {
           pairs.push({
-            key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
-            value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)),
-            alwaysSet: key in ctx.data
+            key: keyType._parse(new ParseInputLazyPath(ctx, key2, ctx.path, key2)),
+            value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key2], ctx.path, key2)),
+            alwaysSet: key2 in ctx.data
           });
         }
         if (ctx.common.async) {
@@ -26401,9 +26401,9 @@ var init_types = __esm({
         }
         const keyType = this._def.keyType;
         const valueType = this._def.valueType;
-        const pairs = [...ctx.data.entries()].map(([key, value], index) => {
+        const pairs = [...ctx.data.entries()].map(([key2, value], index) => {
           return {
-            key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, "key"])),
+            key: keyType._parse(new ParseInputLazyPath(ctx, key2, ctx.path, [index, "key"])),
             value: valueType._parse(new ParseInputLazyPath(ctx, value, ctx.path, [index, "value"]))
           };
         });
@@ -26411,30 +26411,30 @@ var init_types = __esm({
           const finalMap = /* @__PURE__ */ new Map();
           return Promise.resolve().then(async () => {
             for (const pair of pairs) {
-              const key = await pair.key;
+              const key2 = await pair.key;
               const value = await pair.value;
-              if (key.status === "aborted" || value.status === "aborted") {
+              if (key2.status === "aborted" || value.status === "aborted") {
                 return INVALID;
               }
-              if (key.status === "dirty" || value.status === "dirty") {
+              if (key2.status === "dirty" || value.status === "dirty") {
                 status.dirty();
               }
-              finalMap.set(key.value, value.value);
+              finalMap.set(key2.value, value.value);
             }
             return { status: status.value, value: finalMap };
           });
         } else {
           const finalMap = /* @__PURE__ */ new Map();
           for (const pair of pairs) {
-            const key = pair.key;
+            const key2 = pair.key;
             const value = pair.value;
-            if (key.status === "aborted" || value.status === "aborted") {
+            if (key2.status === "aborted" || value.status === "aborted") {
               return INVALID;
             }
-            if (key.status === "dirty" || value.status === "dirty") {
+            if (key2.status === "dirty" || value.status === "dirty") {
               status.dirty();
             }
-            finalMap.set(key.value, value.value);
+            finalMap.set(key2.value, value.value);
           }
           return { status: status.value, value: finalMap };
         }
@@ -27636,13 +27636,13 @@ function buildGraph(repoDataList, relations) {
   const edges = [];
   const seen = /* @__PURE__ */ new Set();
   for (const [sourceId, rels] of relations) {
-    for (const key of RELATION_KEYS) {
-      const targets = rels[key];
+    for (const key2 of RELATION_KEYS) {
+      const targets = rels[key2];
       if (!targets) continue;
       for (const targetId of targets) {
-        const edgeId = `${sourceId}-${String(key)}-${targetId}`;
+        const edgeId = `${sourceId}-${String(key2)}-${targetId}`;
         const reverseId = `${targetId}-relates_to-${sourceId}`;
-        if (seen.has(edgeId) || key === "relates_to" && seen.has(reverseId)) continue;
+        if (seen.has(edgeId) || key2 === "relates_to" && seen.has(reverseId)) continue;
         seen.add(edgeId);
         const targetEntry = allItems.get(targetId);
         if (!targetEntry) {
@@ -27662,7 +27662,7 @@ function buildGraph(repoDataList, relations) {
           id: edgeId,
           source: sourceId,
           target: targetId,
-          type: key,
+          type: key2,
           data: {
             crossRepo: !!sourceRepo && !!targetRepo && sourceRepo !== targetRepo,
             crossTrack
@@ -27774,6 +27774,181 @@ var init_parseSpecMarkdown = __esm({
   "../openspec-parser/src/parseSpecMarkdown.ts"() {
     "use strict";
     STEP_RE = /^[-*]?\s*\*\*(GIVEN|WHEN|THEN|AND)\*\*\s+(.+)$/;
+  }
+});
+
+// ../openspec-parser/src/parseDeltaSpec.ts
+function cleanRequirementRef(raw) {
+  return raw.trim().replace(/^`+|`+$/g, "").replace(/^###\s+Requirement:\s*/i, "").trim();
+}
+function parseDeltaSpec(md) {
+  const lines = md.split("\n");
+  const requirements = [];
+  const renames = [];
+  let currentOp = null;
+  let inRequirementBody = false;
+  let currentReq = null;
+  let currentScenario = null;
+  let pendingRenameFrom = null;
+  for (const line of lines) {
+    const opMatch = line.match(OP_HEADER_RE);
+    if (opMatch) {
+      const word = opMatch[1].toUpperCase();
+      currentOp = word === "ADDED" ? "added" : word === "MODIFIED" ? "modified" : word === "REMOVED" ? "removed" : "renamed";
+      currentReq = null;
+      currentScenario = null;
+      inRequirementBody = false;
+      pendingRenameFrom = null;
+      continue;
+    }
+    if (line.match(/^##\s+/)) {
+      currentOp = null;
+      currentReq = null;
+      currentScenario = null;
+      inRequirementBody = false;
+      continue;
+    }
+    if (!currentOp) continue;
+    if (currentOp === "renamed") {
+      const from = line.match(/^\s*[-*]\s*FROM:\s*(.+)$/i);
+      if (from) {
+        pendingRenameFrom = cleanRequirementRef(from[1]);
+        continue;
+      }
+      const to = line.match(/^\s*[-*]\s*TO:\s*(.+)$/i);
+      if (to && pendingRenameFrom !== null) {
+        renames.push({ from: pendingRenameFrom, to: cleanRequirementRef(to[1]) });
+        pendingRenameFrom = null;
+      }
+      continue;
+    }
+    const reqMatch = line.match(/^###\s+Requirement:\s*(.+)$/);
+    if (reqMatch) {
+      currentReq = { title: reqMatch[1].trim(), body: "", scenarios: [], op: currentOp };
+      requirements.push(currentReq);
+      inRequirementBody = true;
+      currentScenario = null;
+      continue;
+    }
+    const scenarioMatch = line.match(/^####\s+Scenario:\s*(.+)$/);
+    if (scenarioMatch && currentReq) {
+      currentScenario = { title: scenarioMatch[1].trim(), steps: [] };
+      currentReq.scenarios.push(currentScenario);
+      inRequirementBody = false;
+      continue;
+    }
+    if (line.trim() === "---") continue;
+    const stepMatch = line.match(STEP_RE2);
+    if (stepMatch && currentScenario) {
+      currentScenario.steps.push({
+        keyword: stepMatch[1],
+        text: stepMatch[2].trim()
+      });
+      continue;
+    }
+    if (inRequirementBody && currentReq && line.trim() && !line.startsWith("#")) {
+      currentReq.body = (currentReq.body ? currentReq.body + " " : "") + line.trim();
+    }
+  }
+  return { requirements, renames };
+}
+var STEP_RE2, OP_HEADER_RE;
+var init_parseDeltaSpec = __esm({
+  "../openspec-parser/src/parseDeltaSpec.ts"() {
+    "use strict";
+    STEP_RE2 = /^[-*]?\s*\*\*(GIVEN|WHEN|THEN|AND)\*\*\s+(.+)$/;
+    OP_HEADER_RE = /^##\s+(ADDED|MODIFIED|REMOVED|RENAMED)\b/i;
+  }
+});
+
+// ../openspec-parser/src/mergeSpec.ts
+function key(title) {
+  return title.trim().toLowerCase();
+}
+function toMergedScenarios(scenarios, state) {
+  return scenarios.map((s) => ({ ...s, state }));
+}
+function mergeSpecWithDeltas(base, deltas) {
+  const merged = base.requirements.map((req) => ({
+    title: req.title,
+    body: req.body,
+    state: "implemented",
+    scenarios: toMergedScenarios(req.scenarios, "implemented")
+  }));
+  const indexByKey = /* @__PURE__ */ new Map();
+  for (const req of merged) indexByKey.set(key(req.title), req);
+  for (const delta of deltas) {
+    for (const rename of delta.renames) {
+      const existing = indexByKey.get(key(rename.from));
+      if (existing) {
+        indexByKey.delete(key(existing.title));
+        existing.title = rename.to;
+        if (existing.state === "implemented") existing.state = "modified";
+        indexByKey.set(key(existing.title), existing);
+      }
+    }
+    for (const dr of delta.requirements) {
+      const existing = indexByKey.get(key(dr.title));
+      if (dr.op === "removed") {
+        if (existing) existing.state = "removed";
+        else {
+          const removed = {
+            title: dr.title,
+            body: dr.body,
+            state: "removed",
+            scenarios: toMergedScenarios(dr.scenarios, "implemented")
+          };
+          merged.push(removed);
+          indexByKey.set(key(removed.title), removed);
+        }
+        continue;
+      }
+      if (dr.op === "modified" && existing) {
+        if (existing.state !== "removed") existing.state = "modified";
+        if (dr.body) existing.body = dr.body;
+        existing.scenarios.push(...toMergedScenarios(dr.scenarios, "added"));
+        continue;
+      }
+      if (existing) {
+        if (existing.state !== "removed") existing.state = "modified";
+        if (dr.body) existing.body = dr.body;
+        existing.scenarios.push(...toMergedScenarios(dr.scenarios, "added"));
+      } else {
+        const added = {
+          title: dr.title,
+          body: dr.body,
+          state: "added",
+          scenarios: toMergedScenarios(dr.scenarios, "added")
+        };
+        merged.push(added);
+        indexByKey.set(key(added.title), added);
+      }
+    }
+  }
+  const counts = {
+    implemented: 0,
+    added: 0,
+    modified: 0,
+    removed: 0
+  };
+  for (const req of merged) counts[req.state] += 1;
+  const requirement_count = merged.filter((r) => r.state !== "removed").length;
+  const scenario_count = merged.reduce(
+    (sum, r) => r.state === "removed" ? sum : sum + r.scenarios.length,
+    0
+  );
+  return {
+    title: base.title,
+    purpose: base.purpose,
+    requirements: merged,
+    requirement_count,
+    scenario_count,
+    counts
+  };
+}
+var init_mergeSpec = __esm({
+  "../openspec-parser/src/mergeSpec.ts"() {
+    "use strict";
   }
 });
 
@@ -27919,6 +28094,8 @@ __export(src_exports, {
   buildGraph: () => buildGraph,
   classifyPath: () => classifyPath,
   getTransitiveDeps: () => getTransitiveDeps,
+  mergeSpecWithDeltas: () => mergeSpecWithDeltas,
+  parseDeltaSpec: () => parseDeltaSpec,
   parseFolder: () => parseFolder,
   parseIndex: () => parseIndex,
   parseItem: () => parseItem,
@@ -27938,6 +28115,8 @@ var init_src = __esm({
     init_parseFolder();
     init_buildGraph();
     init_parseSpecMarkdown();
+    init_parseDeltaSpec();
+    init_mergeSpec();
     init_parseTasks();
     init_parseSections();
     init_classifyPath();
@@ -34856,8 +35035,8 @@ function lowercaseKeys(object) {
   if (!object) {
     return {};
   }
-  return Object.keys(object).reduce((newObj, key) => {
-    newObj[key.toLowerCase()] = object[key];
+  return Object.keys(object).reduce((newObj, key2) => {
+    newObj[key2.toLowerCase()] = object[key2];
     return newObj;
   }, {});
 }
@@ -34871,20 +35050,20 @@ function isPlainObject(value) {
 }
 function mergeDeep(defaults, options2) {
   const result = Object.assign({}, defaults);
-  Object.keys(options2).forEach((key) => {
-    if (isPlainObject(options2[key])) {
-      if (!(key in defaults)) Object.assign(result, { [key]: options2[key] });
-      else result[key] = mergeDeep(defaults[key], options2[key]);
+  Object.keys(options2).forEach((key2) => {
+    if (isPlainObject(options2[key2])) {
+      if (!(key2 in defaults)) Object.assign(result, { [key2]: options2[key2] });
+      else result[key2] = mergeDeep(defaults[key2], options2[key2]);
     } else {
-      Object.assign(result, { [key]: options2[key] });
+      Object.assign(result, { [key2]: options2[key2] });
     }
   });
   return result;
 }
 function removeUndefinedProperties(obj) {
-  for (const key in obj) {
-    if (obj[key] === void 0) {
-      delete obj[key];
+  for (const key2 in obj) {
+    if (obj[key2] === void 0) {
+      delete obj[key2];
     }
   }
   return obj;
@@ -34935,9 +35114,9 @@ function extractUrlVariableNames(url) {
 }
 function omit(object, keysToOmit) {
   const result = { __proto__: null };
-  for (const key of Object.keys(object)) {
-    if (keysToOmit.indexOf(key) === -1) {
-      result[key] = object[key];
+  for (const key2 of Object.keys(object)) {
+    if (keysToOmit.indexOf(key2) === -1) {
+      result[key2] = object[key2];
     }
   }
   return result;
@@ -34955,10 +35134,10 @@ function encodeUnreserved(str2) {
     return "%" + c.charCodeAt(0).toString(16).toUpperCase();
   });
 }
-function encodeValue(operator, value, key) {
+function encodeValue(operator, value, key2) {
   value = operator === "+" || operator === "#" ? encodeReserved(value) : encodeUnreserved(value);
-  if (key) {
-    return encodeUnreserved(key) + "=" + value;
+  if (key2) {
+    return encodeUnreserved(key2) + "=" + value;
   } else {
     return value;
   }
@@ -34969,8 +35148,8 @@ function isDefined(value) {
 function isKeyOperator(operator) {
   return operator === ";" || operator === "&" || operator === "?";
 }
-function getValues(context, operator, key, modifier) {
-  var value = context[key], result = [];
+function getValues(context, operator, key2, modifier) {
+  var value = context[key2], result = [];
   if (isDefined(value) && value !== "") {
     if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
       value = value.toString();
@@ -34978,14 +35157,14 @@ function getValues(context, operator, key, modifier) {
         value = value.substring(0, parseInt(modifier, 10));
       }
       result.push(
-        encodeValue(operator, value, isKeyOperator(operator) ? key : "")
+        encodeValue(operator, value, isKeyOperator(operator) ? key2 : "")
       );
     } else {
       if (modifier === "*") {
         if (Array.isArray(value)) {
           value.filter(isDefined).forEach(function(value2) {
             result.push(
-              encodeValue(operator, value2, isKeyOperator(operator) ? key : "")
+              encodeValue(operator, value2, isKeyOperator(operator) ? key2 : "")
             );
           });
         } else {
@@ -35010,7 +35189,7 @@ function getValues(context, operator, key, modifier) {
           });
         }
         if (isKeyOperator(operator)) {
-          result.push(encodeUnreserved(key) + "=" + tmp.join(","));
+          result.push(encodeUnreserved(key2) + "=" + tmp.join(","));
         } else if (tmp.length !== 0) {
           result.push(tmp.join(","));
         }
@@ -35019,10 +35198,10 @@ function getValues(context, operator, key, modifier) {
   } else {
     if (operator === ";") {
       if (isDefined(value)) {
-        result.push(encodeUnreserved(key));
+        result.push(encodeUnreserved(key2));
       }
     } else if (value === "" && (operator === "&" || operator === "?")) {
-      result.push(encodeUnreserved(key) + "=");
+      result.push(encodeUnreserved(key2) + "=");
     } else if (value === "") {
       result.push("");
     }
@@ -35199,7 +35378,7 @@ var require_fast_content_type_parse = __commonJS({
       if (index === -1) {
         return result;
       }
-      let key;
+      let key2;
       let match;
       let value;
       paramRE.lastIndex = index;
@@ -35208,13 +35387,13 @@ var require_fast_content_type_parse = __commonJS({
           throw new TypeError("invalid parameter format");
         }
         index += match[0].length;
-        key = match[1].toLowerCase();
+        key2 = match[1].toLowerCase();
         value = match[2];
         if (value[0] === '"') {
           value = value.slice(1, value.length - 1);
           quotedPairRE.test(value) && (value = value.replace(quotedPairRE, "$1"));
         }
-        result.parameters[key] = value;
+        result.parameters[key2] = value;
       }
       if (index !== header.length) {
         throw new TypeError("invalid parameter format");
@@ -35237,7 +35416,7 @@ var require_fast_content_type_parse = __commonJS({
       if (index === -1) {
         return result;
       }
-      let key;
+      let key2;
       let match;
       let value;
       paramRE.lastIndex = index;
@@ -35246,13 +35425,13 @@ var require_fast_content_type_parse = __commonJS({
           return defaultContentType;
         }
         index += match[0].length;
-        key = match[1].toLowerCase();
+        key2 = match[1].toLowerCase();
         value = match[2];
         if (value[0] === '"') {
           value = value.slice(1, value.length - 1);
           quotedPairRE.test(value) && (value = value.replace(quotedPairRE, "$1"));
         }
-        result.parameters[key] = value;
+        result.parameters[key2] = value;
       }
       if (index !== header.length) {
         return defaultContentType;
@@ -35372,8 +35551,8 @@ async function fetchWrapper(requestOptions) {
   const status = fetchResponse.status;
   const url = fetchResponse.url;
   const responseHeaders = {};
-  for (const [key, value] of fetchResponse.headers) {
-    responseHeaders[key] = value;
+  for (const [key2, value] of fetchResponse.headers) {
+    responseHeaders[key2] = value;
   }
   const octokitResponse = {
     url,
@@ -35505,11 +35684,11 @@ function graphql(request2, query, options2) {
         new Error(`[@octokit/graphql] "query" cannot be used as variable name`)
       );
     }
-    for (const key in options2) {
-      if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key)) continue;
+    for (const key2 in options2) {
+      if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key2)) continue;
       return Promise.reject(
         new Error(
-          `[@octokit/graphql] "${key}" cannot be used as variable name`
+          `[@octokit/graphql] "${key2}" cannot be used as variable name`
         )
       );
     }
@@ -35517,15 +35696,15 @@ function graphql(request2, query, options2) {
   const parsedOptions = typeof query === "string" ? Object.assign({ query }, options2) : query;
   const requestOptions = Object.keys(
     parsedOptions
-  ).reduce((result, key) => {
-    if (NON_VARIABLE_OPTIONS.includes(key)) {
-      result[key] = parsedOptions[key];
+  ).reduce((result, key2) => {
+    if (NON_VARIABLE_OPTIONS.includes(key2)) {
+      result[key2] = parsedOptions[key2];
       return result;
     }
     if (!result.variables) {
       result.variables = {};
     }
-    result.variables[key] = parsedOptions[key];
+    result.variables[key2] = parsedOptions[key2];
     return result;
   }, {});
   const baseUrl = parsedOptions.baseUrl || request2.endpoint.DEFAULTS.baseUrl;
@@ -35535,8 +35714,8 @@ function graphql(request2, query, options2) {
   return request2(requestOptions).then((response) => {
     if (response.data.errors) {
       const headers = {};
-      for (const key of Object.keys(response.headers)) {
-        headers[key] = response.headers[key];
+      for (const key2 of Object.keys(response.headers)) {
+        headers[key2] = response.headers[key2];
       }
       throw new GraphqlResponseError(
         requestOptions,
