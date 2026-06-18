@@ -2,6 +2,7 @@
 
 import type { IndexItem } from '@specstat/types'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { EnhancingBadge } from '@/components/shared/EnhancingBadge'
 import { ListIcon, PlayIcon } from '@/components/shared/Icons'
 
 interface SpecStoryCardProps {
@@ -25,7 +26,12 @@ export function SpecStoryCard({ item, activeChanges, onClick, selected }: SpecSt
         <span className="text-xs font-mono text-muted-foreground leading-none pt-0.5 truncate">
           {item.id}
         </span>
-        <StatusBadge status={item.status} />
+        <div className="flex items-center gap-1.5 shrink-0">
+          {activeChanges && activeChanges.length > 0 && (
+            <EnhancingBadge count={activeChanges.length} />
+          )}
+          <StatusBadge status={item.status} />
+        </div>
       </div>
 
       <div className="font-medium text-sm leading-snug">{item.title || item.id}</div>

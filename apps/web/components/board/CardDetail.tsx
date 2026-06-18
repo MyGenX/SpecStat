@@ -1,26 +1,87 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeSanitize from 'rehype-sanitize'
 import type { IndexItem } from '@specstat/types'
-import { parseSpecMarkdown } from '@specstat/openspec-parser'
+import { parseSpecMarkdown, parseDeltaSpec, mergeSpecWithDeltas } from '@specstat/openspec-parser'
+import type { ParsedSpec, ParsedDeltaSpec } from '@specstat/openspec-parser'
 import { useFileContent, useItem, useCommitHistory, useIndex } from '@/lib/hooks'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { EnhancingBadge } from '@/components/shared/EnhancingBadge'
 import { PriorityIndicator } from '@/components/shared/PriorityIndicator'
 import { TagChipList } from '@/components/shared/TagChip'
 import {
   CircleDotIcon, CheckIcon, ListIcon, ArrowUpIcon, UserIcon, UsersIcon,
   TagIcon, CalendarIcon, LinkIcon, ZapIcon, GitPullRequestIcon, GitCommitIcon,
   FileTextIcon, HistoryIcon, LayersIcon, CodeIcon, PackageIcon, GitHubIcon,
-  MilestoneIcon, ArrowRightIcon,
+  MilestoneIcon, ArrowRightIcon, SparklesIcon,
 } from '@/components/shared/Icons'
 import { SpecView } from './SpecView'
+import { MergedSpecView } from './MergedSpecView'
 import { ProposalView } from './ProposalView'
 import { DesignView } from './DesignView'
 import { TasksView } from './TasksView'
+
+// Loads + parses a single change's delta spec for a capability, lifting the result up.
+function DeltaSpecLoader({ repo, change, capability, onParsed }: {
+  repo: string
+  change: IndexItem
+  capability: string
+  onParsed: (changeId: string, delta: ParsedDeltaSpec) => void
+}) {
+  const { data } = useFileContent(repo, `${change.path}/specs/${capability}/spec.md`)
+  useEffect(() => {
+    if (data) onParsed(change.id, parseDeltaSpec(data))
+  }, [data, change.id, onParsed])
+  return null
+}
+
+// Merges the implemented baseline with every active change's delta and renders the unified spec.
+function MergedSpecTab({ repo, capability, base, changes }: {
+  repo: string
+  capability: string
+  base: ParsedSpec | null
+  changes: IndexItem[]
+}) {
+  const [deltas, setDeltas] = useState<Record<string, ParsedDeltaSpec>>({})
+  const handleParsed = useCallback((changeId: string, delta: ParsedDeltaSpec) => {
+    setDeltas((prev) => ({ ...prev, [changeId]: delta }))
+  }, [])
+
+  const ordered = useMemo(
+    () => [...changes].sort((a, b) => (a.last_updated ?? '').localeCompare(b.last_updated ?? '')),
+    [changes],
+  )
+
+  const merged = useMemo(() => {
+    if (!base) return null
+    const collected = ordered.map((c) => deltas[c.id]).filter((d): d is ParsedDeltaSpec => !!d)
+    return mergeSpecWithDeltas(base, collected)
+  }, [base, ordered, deltas])
+
+  const loaded = ordered.every((c) => deltas[c.id])
+
+  return (
+    <>
+      {ordered.map((c) => (
+        <DeltaSpecLoader key={c.id} repo={repo} change={c} capability={capability} onParsed={handleParsed} />
+      ))}
+      {!merged ? (
+        <p className="text-muted-foreground text-sm">Loading spec…</p>
+      ) : (
+        <>
+          {!loaded && (
+            <p className="text-xs text-muted-foreground mb-3">Loading enhancements…</p>
+          )}
+          <MergedSpecView spec={merged} />
+        </>
+      )}
+    </>
+  )
+}
 
 const TRIGGER_RE = /<!--\s*@visualizer:trigger\s+(\S+)(?:\s+(.*?))?\s*-->/g
 
@@ -47,17 +108,18 @@ interface CardDetailProps {
   onClose: () => void
   onNavigate: (item: IndexItem, repo: string) => void
   breadcrumbs?: { item: IndexItem; repo: string }[]
+  variant?: 'overlay' | 'inline'
 }
 
 type ChangeTab = 'proposal' | 'design' | 'tasks'
 
-export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }: CardDetailProps) {
+export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [], variant = 'overlay' }: CardDetailProps) {
   const { data: visualize } = useItem(repo, item.visualize)
   const isChange = item.track === 'change' || (!item.track && item.path.includes('/changes/'))
   const specPath = visualize?.spec_file ? `${item.path}/${visualize.spec_file}` : item.spec_file
   const { data: markdown } = useFileContent(repo, specPath)
   const { data: commits } = useCommitHistory(repo, specPath)
-  const [activeTab, setActiveTab] = useState<'spec' | 'history'>('spec')
+  const [activeTab, setActiveTab] = useState<'spec' | 'history' | 'enhanced'>('spec')
   const availableChangeTabs = isChange
     ? (['proposal', 'design', 'tasks'] as ChangeTab[]).filter((t) => item.docs?.[t])
     : []
@@ -72,6 +134,17 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
   const openspecCreated = openspecYamlContent?.match(/^created:\s*(.+)$/m)?.[1]?.trim()
 
   const { data: index } = useIndex(repo)
+
+  // Active changes (enhancements) targeting this implemented spec.
+  const activeEnhancements = useMemo(() => {
+    if (isChange) return []
+    return (index?.items ?? []).filter(
+      (c) =>
+        (c.track === 'change' || (!c.track && c.path.includes('/changes/'))) &&
+        !c.archived &&
+        (c.relations?.relates_to ?? []).includes(item.id),
+    )
+  }, [index, isChange, item.id])
 
   const [rawMode, setRawMode] = useState(false)
   const [rawChangeMode, setRawChangeMode] = useState(false)
@@ -91,7 +164,13 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
   ]
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[720px] bg-card border-l shadow-2xl z-50 flex flex-col border-t-2 border-t-primary">
+    <div
+      className={
+        variant === 'inline'
+          ? 'h-full w-full bg-card flex flex-col'
+          : 'fixed inset-y-0 right-0 w-[720px] bg-card border-l shadow-2xl z-50 flex flex-col border-t-2 border-t-primary'
+      }
+    >
       <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
         <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-x-auto">
           {breadcrumbs.map((bc, i) => (
@@ -188,6 +267,15 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
                     <HistoryIcon className="w-3.5 h-3.5" />
                     History
                   </button>
+                  {activeEnhancements.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('enhanced')}
+                      className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-md transition-colors ${activeTab === 'enhanced' ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}`}
+                    >
+                      <SparklesIcon className="w-3.5 h-3.5" />
+                      Enhanced
+                    </button>
+                  )}
                 </div>
                 {activeTab === 'spec' && parsedSpec && parsedSpec.requirements.length > 0 && (
                   <button
@@ -240,6 +328,15 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
                   ))}
                 </div>
               )}
+
+              {activeTab === 'enhanced' && (
+                <MergedSpecTab
+                  repo={repo}
+                  capability={item.id}
+                  base={parsedSpec}
+                  changes={activeEnhancements}
+                />
+              )}
             </>
           )}
         </div>
@@ -249,7 +346,12 @@ export function CardDetail({ item, repo, onClose, onNavigate, breadcrumbs = [] }
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide border-l-2 border-primary/30 pl-2">
               <CircleDotIcon className="w-3 h-3" />Status
             </div>
-            <StatusBadge status={item.status} />
+            <div className="flex flex-wrap items-center gap-1.5">
+              <StatusBadge status={item.status} />
+              {activeEnhancements.length > 0 && (
+                <EnhancingBadge count={activeEnhancements.length} />
+              )}
+            </div>
           </div>
 
           {item.tasks && item.tasks.total > 0 && (
