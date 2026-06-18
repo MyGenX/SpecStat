@@ -39,7 +39,7 @@ export default function ArchivePage() {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value as SpecType | '')}
-          className="text-sm border rounded px-2 py-1.5"
+          className="text-sm border border-border rounded-md px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-colors cursor-pointer"
         >
           <option value="">All types</option>
           {(['spec', 'impl', 'task', 'design', 'proposal', 'decision', 'component', 'domain'] as SpecType[]).map((t) => (
@@ -50,7 +50,7 @@ export default function ArchivePage() {
         <select
           value={filterFolder}
           onChange={(e) => setFilterFolder(e.target.value)}
-          className="text-sm border rounded px-2 py-1.5"
+          className="text-sm border border-border rounded-md px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-colors cursor-pointer"
         >
           <option value="">All folders</option>
           {folders.map((f) => (

@@ -98,8 +98,8 @@ function GoalsSection({ section }: { section: MarkdownSection }) {
     <div className="space-y-3">
       <h3 className="text-sm font-semibold">{section.title}</h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="bg-green-50 border border-green-100 rounded-md px-3 py-2 space-y-1">
-          <div className="text-xs font-semibold text-green-700 uppercase tracking-wide">Goals</div>
+        <div className="bg-green-500/10 border border-green-500/20 rounded-md px-3 py-2 space-y-1">
+          <div className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Goals</div>
           <SectionBody body={goals} />
         </div>
         {nonGoals && (
@@ -117,7 +117,7 @@ function RisksSection({ section }: { section: MarkdownSection }) {
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-semibold">{section.title}</h3>
-      <div className="bg-amber-50 border border-amber-100 rounded-md px-3 py-2">
+      <div className="bg-amber-500/10 border border-amber-500/20 rounded-md px-3 py-2">
         <SectionBody body={section.body} />
       </div>
     </div>

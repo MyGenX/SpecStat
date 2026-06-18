@@ -33,8 +33,8 @@ function GenericSection({ section }: { section: MarkdownSection }) {
 
 function WhySection({ section }: { section: MarkdownSection }) {
   return (
-    <div className="bg-blue-50 border border-blue-100 rounded-md px-4 py-3 space-y-2">
-      <h3 className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Why</h3>
+    <div className="bg-blue-500/10 border border-blue-500/20 rounded-md px-4 py-3 space-y-2">
+      <h3 className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide">Why</h3>
       <SectionBody body={section.body} />
     </div>
   )

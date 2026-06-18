@@ -80,7 +80,7 @@ export function GraphView({ items, repo, relations, onNodeClick }: GraphViewProp
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value as SpecType | '')}
-          className="text-xs border rounded px-2 py-1"
+          className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-colors cursor-pointer"
         >
           <option value="">All types</option>
           {['spec', 'impl', 'task', 'design', 'proposal', 'decision', 'component', 'domain'].map((t) => (
@@ -90,7 +90,7 @@ export function GraphView({ items, repo, relations, onNodeClick }: GraphViewProp
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value as SpecStatus | '')}
-          className="text-xs border rounded px-2 py-1"
+          className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-colors cursor-pointer"
         >
           <option value="">All statuses</option>
           {['draft', 'in-review', 'approved', 'implemented', 'deprecated', 'archived'].map((s) => (

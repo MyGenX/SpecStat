@@ -97,7 +97,7 @@ export function BoardView({ items, groupBy = 'status', onCardClick }: BoardViewP
   return (
     <div className="relative">
       {statusToast && (
-        <div className="fixed bottom-4 right-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-md shadow-md z-50">
+        <div className="fixed bottom-4 right-4 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 text-sm px-4 py-3 rounded-md shadow-md z-50">
           {statusToast}
         </div>
       )}

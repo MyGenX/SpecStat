@@ -185,7 +185,7 @@ function AppMock() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-mono text-muted-foreground">SPEC-001</span>
-                  <span className="text-xs bg-green-500/10 text-green-700 px-2 py-0.5 rounded-full font-medium border border-green-500/20">active</span>
+                  <span className="text-xs bg-green-500/10 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-medium border border-green-500/20">active</span>
                 </div>
                 <h3 className="text-lg font-bold">User Authentication Flow</h3>
               </div>

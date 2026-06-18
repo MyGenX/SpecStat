@@ -5,12 +5,12 @@ import { TypeIcon } from '@/components/shared/TypeIcon'
 import { cn } from '@/lib/cn'
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: 'border-gray-300 bg-gray-50',
-  'in-review': 'border-yellow-400 bg-yellow-50',
-  approved: 'border-green-400 bg-green-50',
-  implemented: 'border-blue-400 bg-blue-50',
-  deprecated: 'border-orange-400 bg-orange-50',
-  archived: 'border-slate-300 bg-slate-50',
+  draft: 'border-gray-500/40 bg-gray-500/10',
+  'in-review': 'border-yellow-500/40 bg-yellow-500/10',
+  approved: 'border-green-500/40 bg-green-500/10',
+  implemented: 'border-blue-500/40 bg-blue-500/10',
+  deprecated: 'border-orange-500/40 bg-orange-500/10',
+  archived: 'border-slate-500/40 bg-slate-500/10',
 }
 
 export const GraphNode = memo(function GraphNode({

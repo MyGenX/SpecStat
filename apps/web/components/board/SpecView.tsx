@@ -1,9 +1,9 @@
 import type { ParsedSpec, SpecScenario } from '@specstat/openspec-parser'
 
 const KEYWORD_STYLES: Record<string, string> = {
-  GIVEN: 'bg-blue-50 text-blue-800 border-blue-200',
-  WHEN: 'bg-amber-50 text-amber-800 border-amber-200',
-  THEN: 'bg-green-50 text-green-800 border-green-200',
+  GIVEN: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+  WHEN: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
+  THEN: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
   AND: 'bg-muted text-muted-foreground border-border',
 }
 

@@ -73,13 +73,13 @@ export function TimelineView({ items, repo, baselines = [] }: TimelineViewProps)
     <div className="flex flex-col h-full">
       <div className="flex gap-3 px-4 py-2 border-b bg-card shrink-0">
         <input
-          className="text-sm border rounded px-2 py-1 w-40"
+          className="text-sm border border-border rounded-md px-2 py-1 w-40 bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring/50 transition-colors"
           placeholder="Filter by item ID"
           value={filterItemId}
           onChange={(e) => setFilterItemId(e.target.value)}
         />
         <input
-          className="text-sm border rounded px-2 py-1 w-52"
+          className="text-sm border border-border rounded-md px-2 py-1 w-52 bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring/50 transition-colors"
           placeholder="Filter by folder path"
           value={filterFolder}
           onChange={(e) => setFilterFolder(e.target.value)}
