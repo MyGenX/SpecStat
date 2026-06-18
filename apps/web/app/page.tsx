@@ -5,6 +5,8 @@ import {
   LayersIcon, CircleDotIcon, CalendarIcon, ArchiveIcon,
   ArrowRightIcon, PackageIcon, CheckCircleIcon, ZapIcon,
 } from '@/components/shared/Icons'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { GitHubRepoBadge } from '@/components/layout/GitHubRepoBadge'
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
@@ -243,35 +245,39 @@ export default async function LandingPage() {
           <LogoMark size={26} />
           SpecStat
         </a>
-        {session ? (
-          <div className="flex items-center gap-3">
-            {session.user?.image && (
-              <img
-                src={session.user.image}
-                alt={session.user.name ?? 'User'}
-                className="w-7 h-7 rounded-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            )}
-            <a
-              href="/workspace"
-              className="flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
-            >
-              Open Workspace
-              <ArrowRightIcon className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        ) : (
-          <form action={handleSignIn}>
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 text-sm font-medium bg-foreground text-background px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
-            >
-              <GitHubIcon className="w-4 h-4" />
-              Sign in
-            </button>
-          </form>
-        )}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <GitHubRepoBadge />
+          <ThemeToggle />
+          {session ? (
+            <div className="flex items-center gap-3">
+              {session.user?.image && (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name ?? 'User'}
+                  className="w-7 h-7 rounded-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+              <a
+                href="/workspace"
+                className="flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Open Workspace
+                <ArrowRightIcon className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          ) : (
+            <form action={handleSignIn}>
+              <button
+                type="submit"
+                className="flex items-center gap-1.5 text-sm font-medium bg-foreground text-background px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                <GitHubIcon className="w-4 h-4" />
+                Sign in
+              </button>
+            </form>
+          )}
+        </div>
       </nav>
 
       <main className="pt-14">
